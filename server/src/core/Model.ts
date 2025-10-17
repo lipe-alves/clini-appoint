@@ -1,14 +1,17 @@
+import { toDate } from "@root/shared/utils/index";
+
 interface IModel {
     id: string;
     createdAt: Date;
     updatedAt: Date;
+    metadata: Record<string, any>;
 }
 
 abstract class Model<T extends IModel> implements IModel {
     public readonly data: T;
     
     public constructor(data: T) {
-        this.data = data;
+        this.data = this.parse(data);
     }
 
     public get id() {
@@ -21,6 +24,16 @@ abstract class Model<T extends IModel> implements IModel {
 
     public get updatedAt() {
         return this.data.updatedAt;
+    }
+
+    public get metadata() {
+        return this.data.metadata;
+    }
+
+    protected parse(data: any): T {
+        data.createdAt = toDate(data.createdAt);
+        data.updatedAt = toDate(data.updatedAt);
+        return data;
     }
 
     public abstract validate(): boolean;

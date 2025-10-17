@@ -6,13 +6,14 @@ interface IPhysicalTherapist extends IHealthProfessional {
 }
 
 class PhysicalTherapistModel extends HealthProfessionalModel<IPhysicalTherapist> implements IPhysicalTherapist {
-    public constructor(data: IPhysicalTherapist) {
-        data.type = "PhysicalTherapist" as HealthProfessionalType.PhysicalTherapist;
-        super(data);
-    }
-
     public get type() {
         return "PhysicalTherapist" as HealthProfessionalType.PhysicalTherapist;
+    }
+
+    protected parse(data: any): IPhysicalTherapist {
+        data = super.parse(data);
+        data.type = "PhysicalTherapist";
+        return data;
     }
 }
 

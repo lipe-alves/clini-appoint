@@ -6,13 +6,14 @@ interface IPsychologist extends IHealthProfessional {
 }
 
 class PsychologistModel extends HealthProfessionalModel<IPsychologist> implements IPsychologist {
-    public constructor(data: IPsychologist) {
-        data.type = "Psychologist" as HealthProfessionalType.Psychologist;
-        super(data);
-    }
-
     public get type() {
         return "Psychologist" as HealthProfessionalType.Psychologist;
+    }
+
+    protected parse(data: any): IPsychologist {
+        data = super.parse(data);
+        data.type = "Psychologist";
+        return data;
     }
 }
 

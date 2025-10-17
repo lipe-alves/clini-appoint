@@ -6,13 +6,14 @@ interface INutritionist extends IHealthProfessional {
 }
 
 class NutritionistModel extends HealthProfessionalModel<INutritionist> implements INutritionist {
-    public constructor(data: INutritionist) {
-        data.type = "Nutritionist" as HealthProfessionalType.Nutritionist;
-        super(data);
-    }
-
     public get type() {
         return "Nutritionist" as HealthProfessionalType.Nutritionist;
+    }
+
+    protected parse(data: any): INutritionist {
+        data = super.parse(data);
+        data.type = "Nutritionist";
+        return data;
     }
 }
 

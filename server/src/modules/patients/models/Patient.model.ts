@@ -1,6 +1,7 @@
 import { Model, IModel } from "@root/core/index";
 import { Gender } from "@root/shared/types/index";
 import { IDDocument, MaritalStatus, Relationship, BloodType } from "@root/modules/patients/types/index";
+import { toDate } from "@root/shared/utils/index";
 
 interface IPatient extends IModel {
     firstName: string;
@@ -101,6 +102,12 @@ class PatientModel extends Model<IPatient> implements IPatient {
 
     public get additionalConsiderations() {
         return this.data.additionalConsiderations;
+    }
+
+    protected parse(data: any): IPatient {
+        data = super.parse(data);
+        data.birthdate = toDate(data.birthdate);
+        return data;
     }
 
     public validate(): boolean {

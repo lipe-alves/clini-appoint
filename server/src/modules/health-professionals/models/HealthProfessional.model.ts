@@ -1,6 +1,7 @@
 import { Model, IModel } from "@root/core/index";
 import { Gender } from "@root/shared/types/index";
 import { HealthProfessionalType, HealthProfessionalRegistrationType } from "@root/modules/health-professionals/types/index";
+import { toDate } from "@root/shared/utils/index";
 
 interface IHealthProfessional extends IModel {
     firstName: string;
@@ -11,7 +12,6 @@ interface IHealthProfessional extends IModel {
     type: HealthProfessionalType;
     customType?: string;
     specialties: string[];
-    clinicId: string;
     registration: {
         type: HealthProfessionalRegistrationType;
         value: string;
@@ -34,7 +34,11 @@ interface IHealthProfessional extends IModel {
         acceptsInsurance: boolean;
         telemedicine: boolean;
         languages: string[];
-        workingHours: string[];
+        workingHours: {
+            weekday: number;
+            start: string;
+            end: string;
+        }[];
     };
 }
 
@@ -71,10 +75,6 @@ class HealthProfessionalModel<T extends IHealthProfessional = IHealthProfessiona
         return this.data.specialties;
     }
 
-    public get clinicId() {
-        return this.data.clinicId;
-    }
-
     public get registration() {
         return this.data.registration;
     }
@@ -89,6 +89,12 @@ class HealthProfessionalModel<T extends IHealthProfessional = IHealthProfessiona
     
     public get availability() {
         return this.data.availability;
+    }
+
+    protected parse(data: any): T {
+        data = super.parse(data);
+        data.birthdate = toDate(data.birthdate);
+        return data;
     }
 
     public validate(): boolean {

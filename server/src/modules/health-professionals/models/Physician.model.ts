@@ -6,14 +6,15 @@ interface IPhysician extends IHealthProfessional {
 }
 
 class PhysicianModel extends HealthProfessionalModel<IPhysician> implements IPhysician {
-    public constructor(data: IPhysician) {
-        data.type = "Physician" as HealthProfessionalType.Physician;
-        super(data);
-    }
-
     public get type() {
         return "Physician" as HealthProfessionalType.Physician;
     }
+
+    protected parse(data: any): IPhysician {
+        data = super.parse(data);
+        data.type = "Physician";
+        return data;
+    }    
 }
 
 export { PhysicianModel, IPhysician };
