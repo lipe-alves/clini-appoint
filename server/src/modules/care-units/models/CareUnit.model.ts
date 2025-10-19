@@ -4,7 +4,7 @@ interface ICareUnit extends IModel {
     name: string;
     clinicId: string;
     description?: string;
-    specialities: string[];
+    specialties: string[];
     professionals: string[];
     address: {
         street: string;
@@ -26,16 +26,32 @@ class CareUnitModel extends Model<ICareUnit> implements ICareUnit {
         return this.data.name;
     }
 
-    public get address() {
-        return this.data.address;
+    public get description() {
+        return this.data.description;
     }
 
     public get clinicId() {
         return this.data.clinicId;
     }
 
-    public get description() {
-        return this.data.description;
+    public get specialties() {
+        return this.data.specialties;
+    }
+
+    public get professionals() {
+        return this.data.professionals;
+    }
+
+    public get address() {
+        return this.data.address;
+    }
+
+    public get operatingHours() {
+        return this.data.operatingHours;
+    }
+
+    public get examsOffered() {
+        return this.data.examsOffered;
     }
 
     public validate(): boolean {
