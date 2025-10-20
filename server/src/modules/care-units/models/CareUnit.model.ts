@@ -1,4 +1,5 @@
 import { Model, IModel } from "@root/core/index";
+import { FollowUpPolicyAppliesTo } from "@root/modules/care-units/types/index";
 
 interface ICareUnit extends IModel {
     name: string;
@@ -18,7 +19,15 @@ interface ICareUnit extends IModel {
         openTime: string;
         closeTime: string;
     }[];
+    followUpPolicy: {
+        enabled: boolean;
+        delayDays: number;
+        isFree: boolean;
+        appliesTo: FollowUpPolicyAppliesTo;
+        exams?: string[];
+    };
     examsOffered: string[];
+    rooms: string[];
 }
 
 class CareUnitModel extends Model<ICareUnit> implements ICareUnit {
@@ -52,6 +61,14 @@ class CareUnitModel extends Model<ICareUnit> implements ICareUnit {
 
     public get examsOffered() {
         return this.data.examsOffered;
+    }
+
+    public get rooms() {
+        return this.data.rooms;
+    }
+
+    public get followUpPolicy() {
+        return this.data.followUpPolicy;
     }
 
     public validate(): boolean {

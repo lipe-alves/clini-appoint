@@ -1,7 +1,8 @@
+import { ID } from "@root/shared/types/index";
 import { toDate } from "@root/shared/utils/index";
 
 interface IModel {
-    id: string;
+    id: ID;
     createdAt: Date;
     updatedAt: Date;
     metadata: Record<string, any>;

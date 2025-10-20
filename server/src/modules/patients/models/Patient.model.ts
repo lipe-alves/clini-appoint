@@ -1,12 +1,12 @@
 import { Model, IModel } from "@root/core/index";
 import { Gender } from "@root/shared/types/index";
-import { IDDocument, MaritalStatus, Relationship, BloodType } from "@root/modules/patients/types/index";
+import { PersonIDDocument, MaritalStatus, Relationship, BloodType } from "@root/modules/patients/types/index";
 import { toDate } from "@root/shared/utils/index";
 
 interface IPatient extends IModel {
     firstName: string;
     lastName: string;
-    document: IDDocument;
+    document: PersonIDDocument;
     birthdate?: Date;
     gender?: Gender;
     maritalStatus?: MaritalStatus;

@@ -1,13 +1,13 @@
 import { Model, IModel } from "@root/core/index";
 import { HealthProfessionalType } from "@root/modules/health-professionals/types/index";
 
-interface ISpeciality extends IModel {
+interface ISpecialty extends IModel {
     name: string;
     description?: string;
     professionalType: HealthProfessionalType;
 }
 
-class SpecialityModel<T extends ISpeciality = ISpeciality> extends Model<T> implements ISpeciality {
+class SpecialtyModel<T extends ISpecialty = ISpecialty> extends Model<T> implements ISpecialty {
     public get name() {
         return this.data.name;
     }
@@ -25,5 +25,5 @@ class SpecialityModel<T extends ISpeciality = ISpeciality> extends Model<T> impl
     }
 }
 
-export { SpecialityModel, ISpeciality };
-export default SpecialityModel;
+export { SpecialtyModel, ISpecialty };
+export default SpecialtyModel;

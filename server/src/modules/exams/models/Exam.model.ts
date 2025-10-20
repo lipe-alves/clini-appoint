@@ -1,5 +1,5 @@
 import { Model, IModel } from "@root/core/index";
-import { ExamType, DurationType } from "@root/modules/exams/types/index";
+import { ExamType, DurationType, FollowUpPolicy } from "@root/modules/exams/types/index";
 import { Gender } from "@root/shared/types";
 
 interface IExam extends IModel {
@@ -19,13 +19,14 @@ interface IExam extends IModel {
         instructions: string;
         requiresFasting: boolean;
     };
+    followUpPolicy: FollowUpPolicy;
     minAge?: number;
     maxAge?: number;
     genderRestriction?: Gender;
-    specialities?: string[];
+    specialties?: string[];
 }
 
-class ExamModel<T extends IExam = IExam> extends Model<T> implements IExam {
+class ExamModel extends Model<IExam> implements IExam {
     public get name() {
         return this.data.name;
     }
@@ -50,6 +51,10 @@ class ExamModel<T extends IExam = IExam> extends Model<T> implements IExam {
         return this.data.preparation;
     }
 
+    public get followUpPolicy() {
+        return this.data.followUpPolicy;
+    }
+
     public get minAge() {
         return this.data.minAge;
     }
@@ -62,8 +67,8 @@ class ExamModel<T extends IExam = IExam> extends Model<T> implements IExam {
         return this.data.genderRestriction;
     }
 
-    public get specialities() {
-        return this.data.specialities;
+    public get specialties() {
+        return this.data.specialties;
     }
 
     public validate(): boolean {

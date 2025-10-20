@@ -1,7 +1,7 @@
-export type IDDocumentType = "CPF" | "SSN" | "NationalID";
+export type PersonIDDocumentType = "CPF" | "SSN" | "NationalID";
 
-export interface IDDocument {
-    type: IDDocumentType;
+export interface PersonIDDocument {
+    type: PersonIDDocumentType;
     value: string;
 }
 
