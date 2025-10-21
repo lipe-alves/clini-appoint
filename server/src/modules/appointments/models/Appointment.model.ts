@@ -1,16 +1,18 @@
 import { Model, IModel } from "@root/core/index";
 import { Int } from "@root/shared/types/index";
-import { toDate } from "@root/shared/utils/index";
+import { toDate, validateDate } from "@root/shared/utils/date";
 import { 
     AppointmentStatus,
     PaymentMethod,
     PaymentType,
     PaymentStatus,
     CareUnitSummary,
+    RoomSummary,
     PatientSummary,
     HealthProfessionalSummary,
     ExamSummary 
 } from "@root/modules/appointments/types/index";
+import { InvalidInputFormatError } from "@root/shared/errors/index";
 
 interface IAppointment extends IModel {
     name: string;
@@ -18,7 +20,7 @@ interface IAppointment extends IModel {
     observation?: string;
     status: AppointmentStatus;
     careUnit: CareUnitSummary;
-    room: string;
+    room: RoomSummary;
     patient: PatientSummary;
     healthProfessional: HealthProfessionalSummary;
     exam: ExamSummary;
@@ -103,8 +105,16 @@ class AppointmentModel extends Model<IAppointment> implements IAppointment {
         return data;
     }
 
-    public validate(): boolean {
-        return true;
+    protected validate(): void {
+        super.validate();
+
+        if (!validateDate(this.data.start)) {
+            throw new InvalidInputFormatError("start", ["date"]);
+        }
+
+        if (!validateDate(this.data.end)) {
+            throw new InvalidInputFormatError("end", ["date"]);
+        }
     }
 }
 

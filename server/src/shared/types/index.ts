@@ -1,4 +1,5 @@
 import Controller from "@root/core/Controller";
+import { GENDER_LIST } from "@root/shared/constants/index";
 import * as http from "http";
 
 export type Opaque<T, K> = T & { __opaque__: K };
@@ -31,6 +32,6 @@ export interface Route<TController extends Controller = Controller> {
     func: string;
 }
 
-export type Gender = "Male" | "Female" | "NonBinary" | "Other";
+export type Gender = typeof GENDER_LIST[number];
 export type Int = Opaque<number, "Int">;
 export type ID = Opaque<`${Int}`, "ID">;

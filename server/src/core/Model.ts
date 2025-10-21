@@ -1,5 +1,6 @@
 import { ID } from "@root/shared/types/index";
-import { toDate } from "@root/shared/utils/index";
+import { toDate } from "@root/shared/utils/date";
+import { Schema, SchemaConfig } from "@root/shared/utils/schema";
 
 interface IModel {
     id: ID;
@@ -8,11 +9,21 @@ interface IModel {
     metadata: Record<string, any>;
 }
 
-abstract class Model<T extends IModel> implements IModel {
-    public readonly data: T;
+const baseModelSchema: SchemaConfig = {
+    id: Schema.idField(true),
+    createdAt: Schema.dateField(true),
+    updatedAt: Schema.dateField(true),
+    metadata: Schema.objectField(true)
+};
+
+class Model<T extends IModel> implements IModel {
+    protected readonly data: T;
+    protected readonly schema: SchemaConfig;
     
-    public constructor(data: T) {
+    public constructor(data: T, schema = baseModelSchema) {
+        this.schema = { ...schema, ...baseModelSchema };
         this.data = this.parse(data);
+        this.validate();
     }
 
     public get id() {
@@ -37,7 +48,9 @@ abstract class Model<T extends IModel> implements IModel {
         return data;
     }
 
-    public abstract validate(): boolean;
+    protected validate(): void {
+        Schema.validate(this.data, this.schema);
+    }
     
     public toJson(): T {
         return this.data;

@@ -1,6 +1,6 @@
 import { Model, IModel } from "@root/core/index";
 import { ExamType, DurationType, FollowUpPolicy } from "@root/modules/exams/types/index";
-import { Gender } from "@root/shared/types";
+import { Gender, Int } from "@root/shared/types/index";
 
 interface IExam extends IModel {
     name: string;
@@ -24,6 +24,7 @@ interface IExam extends IModel {
     maxAge?: number;
     genderRestriction?: Gender;
     specialties?: string[];
+    amount: Int;
 }
 
 class ExamModel extends Model<IExam> implements IExam {
@@ -69,6 +70,10 @@ class ExamModel extends Model<IExam> implements IExam {
 
     public get specialties() {
         return this.data.specialties;
+    }
+
+    public get amount() {
+        return this.data.amount;
     }
 
     public validate(): boolean {

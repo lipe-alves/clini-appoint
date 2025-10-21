@@ -1,7 +1,17 @@
 import { Model, IModel } from "@root/core/index";
 import { Gender } from "@root/shared/types/index";
 import { PersonIDDocument, MaritalStatus, Relationship, BloodType } from "@root/modules/patients/types/index";
-import { toDate } from "@root/shared/utils/index";
+
+import { GENDER_LIST } from "@root/shared/constants/index";
+import { 
+    BLOOD_TYPES_LIST, 
+    MARITAL_STATUS_LIST,
+    PERSON_ID_DOCUMENT_TYPES_LIST, 
+    RELATIONSHIP_TYPES_LIST 
+} from "@root/modules/patients/constants/index";
+
+import { toDate } from "@root/shared/utils/date";
+import Schema, { SchemaConfig } from "@root/shared/utils/schema";
 
 interface IPatient extends IModel {
     firstName: string;
@@ -37,7 +47,7 @@ interface IPatient extends IModel {
         bloodType?: BloodType;
     };
     additionalConsiderations: {
-        note: string;
+        note?: string;
         culturalOrReligious: {
             religion?: string;
             dietaryRestrictions: string[];
@@ -56,10 +66,77 @@ interface IPatient extends IModel {
             organDonor: boolean;
         };
     };
-
 }
 
+const patientSchema: SchemaConfig = {
+    firstName: Schema.stringField(true),
+    lastName: Schema.stringField(true),
+    document: Schema.objectField(true, {
+        type: Schema.enumField([...PERSON_ID_DOCUMENT_TYPES_LIST], true),
+        value: Schema.numericField(true)
+    }),
+    birthdate: Schema.dateField(true),
+    gender: Schema.enumField([...GENDER_LIST], false),
+    maritalStatus: Schema.enumField([...MARITAL_STATUS_LIST], false),
+    preferredLanguage: Schema.stringField(false),
+    contactInfo: Schema.objectField(true, {
+        phoneNumbers: Schema.arrayField(true, Schema.cellphoneField(true)),
+        email: Schema.emailField(true),
+        address: Schema.objectField(true, {
+            street: Schema.stringField(true),
+            city: Schema.stringField(true),
+            state: Schema.stringField(true),
+            postalCode: Schema.stringField(true),
+            country: Schema.stringField(true),
+        }),
+        emergencyContact: Schema.objectField(true, {
+            name: Schema.stringField(true),
+            relationship: Schema.enumField([...RELATIONSHIP_TYPES_LIST], true),
+            phone: Schema.cellphoneField(true),
+        }),
+    }),
+    medicalInfo: Schema.objectField(true, {
+        primaryCarePhysician: Schema.stringField(false),
+        allergies: Schema.arrayField(true, Schema.stringField(true)),
+        currentMedications: Schema.arrayField(true, Schema.stringField(true)),
+        chronicConditions: Schema.arrayField(true, Schema.stringField(true)),
+        pastSurgeries: Schema.arrayField(true, Schema.stringField(true)),
+        familyMedicalHistory: Schema.arrayField(true, Schema.stringField(true)),
+        bloodType: Schema.enumField([...BLOOD_TYPES_LIST], false)
+    }),
+    additionalConsiderations: Schema.objectField(true, {
+        note: Schema.stringField(false),
+        culturalOrReligious: Schema.objectField(true, {
+            religion: Schema.stringField(false),
+            dietaryRestrictions: Schema.arrayField(true, Schema.stringField(true)),
+            modestyPreferences: Schema.objectField(true, {
+                prefersSameGenderProvider: Schema.booleanField(true)
+            }),
+            prayerNeeds: Schema.objectField(true, {
+                requiresQuietSpace: Schema.booleanField(true),
+                prayerTimes: Schema.arrayField(false, Schema.stringField(true))
+            })
+        }),
+        mentalHealthHistory: Schema.arrayField(true, Schema.stringField(true)),
+        disabilityStatus: Schema.stringField(false),
+        advanceDirectives: Schema.objectField(true, {
+            hasLivingWill: Schema.booleanField(true),
+            organDonor: Schema.booleanField(true)
+        })
+    })
+};
+
 class PatientModel extends Model<IPatient> implements IPatient {
+    public constructor(data: IPatient) {
+        super(data, patientSchema);
+    }
+
+    protected parse(data: any): IPatient {
+        data = super.parse(data);
+        data.birthdate = toDate(data.birthdate);
+        return data;
+    }
+
     public get firstName() {
         return this.data.firstName;
     }
@@ -102,16 +179,6 @@ class PatientModel extends Model<IPatient> implements IPatient {
 
     public get additionalConsiderations() {
         return this.data.additionalConsiderations;
-    }
-
-    protected parse(data: any): IPatient {
-        data = super.parse(data);
-        data.birthdate = toDate(data.birthdate);
-        return data;
-    }
-
-    public validate(): boolean {
-        return true;
     }
 }
 

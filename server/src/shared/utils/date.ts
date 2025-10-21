@@ -1,4 +1,4 @@
-function toDate(value: any): Date {
+export function toDate(value: any): Date {
     if (value && typeof value === "object" && value.toDate) {
         return value.toDate();
     }
@@ -50,5 +50,7 @@ function toDate(value: any): Date {
     throw new Error(`Unable to convert ${value} to date instance.`);
 }
 
-export default toDate;
-export { toDate };
+export function validateDate(date: any): date is Date {
+    date = toDate(date);
+    return date instanceof Date && !isNaN(date.getTime());
+}

@@ -33,6 +33,12 @@ class ClinicModel extends Model<IClinic> implements IClinic {
         return this.data.contacts;
     }
 
+    protected parse(data: any): IClinic {
+        data = super.parse(data);
+        data.document.value = data.document.value.replace(/\D/g, "");
+        return data;
+    }
+
     public validate(): boolean {
         return true;
     }
