@@ -113,7 +113,7 @@ class Schema {
                 }
                 case "id": {
                     if (typeof data[key] !== "string" || !isId(data[key])) {
-                        throw new InvalidInputFormatError(key, ["boolean"]);
+                        throw new InvalidInputFormatError(key, ["id"]);
                     }
                     break;
                 }
