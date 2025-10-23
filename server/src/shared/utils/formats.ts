@@ -17,3 +17,8 @@ export function isCpf(input: string): boolean {
 export function isGender(input: string): input is Gender {
     return GENDER_LIST.includes(input as any);
 }
+
+export function validateEmail(email: string): boolean {
+    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return pattern.test(email);
+}

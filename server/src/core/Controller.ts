@@ -1,5 +1,8 @@
 import { HttpRequest, HttpResponse } from "@root/shared/types/index";
+import { validateQueryModelsDto } from "@root/shared/dtos/QueryModels.dto";
 import ServerError from "./ServerError";
+import Service from "./Service";
+import Model, { IModel } from "./Model";
 
 abstract class Controller {
     protected request: HttpRequest;
@@ -11,6 +14,25 @@ abstract class Controller {
     }
 
     public abstract execute(func: string): Promise<void>;
+
+    protected async getModels<T extends IModel, M extends Model<T>>(service: Service<T, M>): Promise<void> {
+        const params = this.request.query;
+
+        if (!validateQueryModelsDto(params)) {
+            return;
+        }
+
+        for (const filter of params.filters) {
+            service.where(filter.field, filter.op, filter.value);
+        }
+        
+        const items = await service
+            .page(params.pagination.size, params.pagination.page)
+            .orderBy(params.order.field, params.order.direction)
+            .list();
+
+        this.success("Consulta realizada com sucesso.", { items });
+    } 
 
     public success(message: string, data: Object = {})
     {

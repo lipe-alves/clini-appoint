@@ -1,6 +1,12 @@
 import { Model, IModel } from "@root/core/index";
 import { ExamType, DurationType, FollowUpPolicy } from "@root/modules/exams/types/index";
+import { 
+    EXAM_TYPES_LIST,
+    DURATION_TYPES_LIST
+} from "@root/modules/exams/constants/index";
+import { GENDER_LIST } from "@root/shared/constants/index";
 import { Gender, Int } from "@root/shared/types/index";
+import Schema, { SchemaConfig } from "@root/core/Schema";
 
 interface IExam extends IModel {
     name: string;
@@ -27,7 +33,40 @@ interface IExam extends IModel {
     amount: Int;
 }
 
+const examSchema: SchemaConfig = {
+    name: Schema.stringField(true),
+    type: Schema.enumField([...EXAM_TYPES_LIST], true),
+    customType: Schema.stringField(false),
+    description: Schema.stringField(false),
+    duration: Schema.objectField(false, {
+        type: Schema.enumField([...DURATION_TYPES_LIST], true),
+        value: Schema.intField(true),
+    }),
+    resultsTime: Schema.objectField(false, {
+        type: Schema.enumField([...DURATION_TYPES_LIST], true),
+        value: Schema.intField(true),
+    }),
+    preparation: Schema.objectField(true, {
+        instructions: Schema.stringField(true),
+        requiresFasting: Schema.booleanField(true),
+    }),
+    followUpPolicy: Schema.objectField(true, {
+        enabled: Schema.booleanField(true),
+        delayDays: Schema.intField(true),
+        isFree: Schema.booleanField(true)
+    }),
+    minAge: Schema.intField(false),
+    maxAge: Schema.intField(false),
+    genderRestriction: Schema.enumField([...GENDER_LIST], false),
+    specialties: Schema.arrayField(false, Schema.stringField(true)),
+    amount: Schema.intField(true),
+};
+
 class ExamModel extends Model<IExam> implements IExam {
+    public constructor(data: IExam) {
+        super(data, examSchema);
+    }
+
     public get name() {
         return this.data.name;
     }
@@ -74,10 +113,6 @@ class ExamModel extends Model<IExam> implements IExam {
 
     public get amount() {
         return this.data.amount;
-    }
-
-    public validate(): boolean {
-        return true;
     }
 }
 

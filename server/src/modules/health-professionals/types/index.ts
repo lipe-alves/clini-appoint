@@ -1,4 +1,3 @@
-
 export enum HealthProfessionalType {
     Physician = "Physician",
     Psychologist = "Psychologist",

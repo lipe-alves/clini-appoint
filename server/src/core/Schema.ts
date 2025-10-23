@@ -1,6 +1,7 @@
-import { validateDate } from "@root/shared/utils/date";
-import { isId, isNumeric } from "@root/shared/utils/formats";
-import { InvalidInputFormatError, RequiredFieldError } from "@root/shared/errors/index";
+import { InvalidInputFormatError, RequiredFieldError } from "../shared/errors/index";
+import { validateDate } from "../shared/utils/date";
+import { isId, isNumeric, validateEmail } from "../shared/utils/formats";
+import { removeWhitespaces } from "../shared/utils/string";
 
 type PropertyType = 
     | "date" 
@@ -84,7 +85,7 @@ class Schema {
     }
 
     public static validate(data: any, schema: SchemaConfig): void {
-        for (const [key, config] of Object.entries(schema)) {        
+        for (const [key, config] of Object.entries(schema)) {  
             if (typeof data[key] === "undefined" || data[key] === null) {
                 if (config.required) {
                     throw new RequiredFieldError(key);
@@ -94,56 +95,52 @@ class Schema {
             }
 
             switch (config.type) {
-                case "array": {
+                case "array":
                     if (!Array.isArray(data[key])) {
                         throw new InvalidInputFormatError(key, ["array"]);
                     }
                     if (config.itemsType) {
-                        for (const item of data[key]) {
-                            this.validate({ [key]: item }, { [key]: config.itemsType });
+                        for (let i = 0; i < data[key].length; i++) {
+                            const itemKey = `${key}[${i}]`;
+                            const item = data[key][i];
+                            this.validate({ [itemKey]: item }, { [itemKey]: config.itemsType });
                         }
                     }
                     break;
-                }
-                case "boolean": {
+                case "boolean":
                     if (typeof data[key] !== "boolean") {
                         throw new InvalidInputFormatError(key, ["boolean"]);
                     }
                     break;
-                }
-                case "id": {
+                case "id":
                     if (typeof data[key] !== "string" || !isId(data[key])) {
                         throw new InvalidInputFormatError(key, ["id"]);
                     }
                     break;
-                }
-                case "int": {
+                case "int":
                     if (typeof data[key] !== "number" || !Number.isInteger(data[key])) {
                         throw new InvalidInputFormatError(key, ["int"]);
                     }
                     break;
-                }
-                case "numeric": {
+                case "cellphone": 
+                case "numeric":
                     if (typeof data[key] !== "string" || !isNumeric(data[key])) {
                         throw new InvalidInputFormatError(key, ["numeric"]);
                     }
                     break;
-                }
-                case "date": {
+                case "date":
                     if (!validateDate(data[key])) {
                         throw new InvalidInputFormatError(key, ["date"]);
                     }
                     break;
-                }
                 case "number":
-                case "float": {
+                case "float":
                     if (typeof data[key] !== "number") {
                         throw new InvalidInputFormatError(key, [config.type]);
                     }
                     break;
-                }
-                case "string": {
-                    if (typeof data[key] !== "string") {
+                case "string":
+                    if (typeof data[key] !== "string" || !removeWhitespaces(data[key])) {
                         throw new InvalidInputFormatError(key, ["string"]);
                     }
                     if (config.possibleStrings) {
@@ -152,16 +149,19 @@ class Schema {
                         }
                     }
                     break;
-                }
-                case "object": {
-                    if (typeof data[key] === "object" && data[key] !== null && !Array.isArray(data[key])) {
+                case "object":
+                    if (typeof data[key] !== "object" || data[key] === null || Array.isArray(data[key])) {
                         throw new InvalidInputFormatError(key, ["object"]);
                     }
                     if (config.properties) {
                         this.validate(data[key], config.properties);
                     }
                     break;
-                }
+                case "email":
+                    if (typeof data[key] !== "string" || !validateEmail(data[key])) {
+                        throw new InvalidInputFormatError(key, ["email"]);
+                    }
+                    break;
                 default:
                     break;
             }
@@ -169,5 +169,5 @@ class Schema {
     }
 }
 
+export { Schema, SchemaConfig, PropertyConfigs, PropertyType };
 export default Schema;
-export { Schema, SchemaConfig, PropertyConfigs, PropertyType }

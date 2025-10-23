@@ -11,7 +11,7 @@ import {
 } from "@root/modules/patients/constants/index";
 
 import { toDate } from "@root/shared/utils/date";
-import Schema, { SchemaConfig } from "@root/shared/utils/schema";
+import Schema, { SchemaConfig } from "@root/core/Schema";
 
 interface IPatient extends IModel {
     firstName: string;

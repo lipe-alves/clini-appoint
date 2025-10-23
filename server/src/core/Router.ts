@@ -19,7 +19,14 @@ class Router {
                 try {
                     await controller.execute(route.func);
                 } catch (err) {
-                    const serverErr = ServerError.create(err);
+                    let serverErr: ServerError; 
+                    
+                    if (!(err instanceof ServerError)) {    
+                        serverErr = ServerError.create(err);
+                    } else {
+                        serverErr = err;
+                    }
+                    
                     controller.fail(serverErr);
                 }
             });

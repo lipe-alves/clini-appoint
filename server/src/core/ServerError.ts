@@ -11,7 +11,11 @@ class ServerError extends Error {
     }
 
     public static create(err: any) {
-        return new ServerError(500, err?.message || "Erro desconhecido.", "ERR_UNKNOWN");
+        return new ServerError(
+            err?.status || 500, 
+            err?.message || "Erro desconhecido.", 
+            err?.code || "ERR_UNKNOWN"
+        );
     }
 }
 

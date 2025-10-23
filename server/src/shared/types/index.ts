@@ -35,3 +35,5 @@ export interface Route<TController extends Controller = Controller> {
 export type Gender = typeof GENDER_LIST[number];
 export type Int = Opaque<number, "Int">;
 export type ID = Opaque<`${Int}`, "ID">;
+
+export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
