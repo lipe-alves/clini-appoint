@@ -28,8 +28,8 @@ const queryModelsDtoSchema: SchemaConfig = {
         direction: Schema.enumField([...ORDER_BY_DIRECTIONS], true)
     }),
     pagination: Schema.objectField(true, {
-        page: Schema.intField(true),
-        size: Schema.intField(true)
+        page: Schema.numericField(true),
+        size: Schema.numericField(true)
     })
 };
 

@@ -3,6 +3,7 @@ import { validateQueryModelsDto } from "@root/shared/dtos/QueryModels.dto";
 import ServerError from "./ServerError";
 import Service from "./Service";
 import Model, { IModel } from "./Model";
+import Repository from "./Repository";
 
 abstract class Controller {
     protected request: HttpRequest;
@@ -15,7 +16,7 @@ abstract class Controller {
 
     public abstract execute(func: string): Promise<void>;
 
-    protected async getModels<T extends IModel, M extends Model<T>>(service: Service<T, M>): Promise<void> {
+    protected async getModels<T extends IModel, M extends Model<T>, R extends Repository<T, M>>(service: Service<T, M, R>): Promise<void> {
         const params = this.request.query;
 
         if (!validateQueryModelsDto(params)) {
@@ -23,10 +24,11 @@ abstract class Controller {
         }
 
         for (const filter of params.filters) {
-            service.where(filter.field, filter.op, filter.value);
+            service.repository.where(filter.field, filter.op, filter.value);
         }
         
         const items = await service
+            .repository
             .page(params.pagination.size, params.pagination.page)
             .orderBy(params.order.field, params.order.direction)
             .list();

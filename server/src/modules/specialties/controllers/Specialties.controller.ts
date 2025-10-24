@@ -1,6 +1,8 @@
 import Controller from "@root/core/Controller";
 import { validateCreateSpecialtyDto } from "@root/modules/specialties/dtos/CreateSpecialty.dto";
 import SpecialtyService from "@root/modules/specialties/services/Specialty.service";
+import SpecialtyModel, { ISpecialty } from "@root/modules/specialties/models/Specialty.model";
+import SpecialtyRepository from "@root/modules/specialties/repositories/Specialty.repository";
 
 class SpecialtiesController extends Controller {
     public async createSpecialty() {
@@ -18,7 +20,7 @@ class SpecialtiesController extends Controller {
 
     public async getSpecialties() {
         const service = new SpecialtyService();
-        await this.getModels(service);
+        await this.getModels<ISpecialty, SpecialtyModel, SpecialtyRepository>(service);
     }
 
     public async execute(func: string) {

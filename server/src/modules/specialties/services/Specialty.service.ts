@@ -12,9 +12,7 @@ import { ID } from "@root/shared/types";
 class SpecialtyService extends Service<
     ISpecialty, 
     SpecialtyModel, 
-    SpecialtyRepository,
-    CreateSpecialtyDto,
-    UpdateSpecialtyDto
+    SpecialtyRepository
 > {
     public constructor() {
         const repository = new SpecialtyRepository();
@@ -27,9 +25,7 @@ class SpecialtyService extends Service<
         const specialtySameName = await this.repository.getByName(model.name);
         const duplicated = !!specialtySameName;
         
-        if (duplicated) {
-            throw new DuplicatedRegisterError("Specialty", "name", model.name);
-        }
+        if (duplicated) throw new DuplicatedRegisterError("Specialty", "name", model.name);
 
         const specialty = await this.repository.create(data);
         return specialty;
