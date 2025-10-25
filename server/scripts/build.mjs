@@ -7,7 +7,9 @@ build();
 function build() {
     fs.rmSync("build", { recursive: true, force: true });
 
-    fs.cpSync("src/configs", "build/configs", { recursive: true });
+    if (fs.existsSync("src/configs")) {
+        fs.cpSync("src/configs", "build/configs", { recursive: true });
+    }
 
     exec("tsc", (error, stdout, stderr) => {
         if (error) {
