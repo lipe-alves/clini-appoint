@@ -42,17 +42,6 @@ class SpecialtyModel extends Model<ISpecialty> implements ISpecialty {
     public get professionalType() {
         return this.data.professionalType;
     }
-
-    public static fromDto(dto: CreateSpecialtyDto): SpecialtyModel {
-        const now = new Date();
-        return new SpecialtyModel({
-            ...dto,
-            id: generateId(),
-            createdAt: now,
-            updatedAt: now,
-            metadata: {}
-        });
-    }
 }
 
 export { SpecialtyModel, ISpecialty, specialtySchema };

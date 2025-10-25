@@ -52,6 +52,10 @@ class Service<
     public async list(): Promise<M[]> {
         return this.repository.list();
     }
+
+    public async getById(id: ID): Promise<M | null> {
+        return this.repository.getById(id);
+    }
 }
 
 

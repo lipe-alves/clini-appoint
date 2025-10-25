@@ -1,6 +1,8 @@
 import { ID } from "@root/shared/types/index";
 import { toDate } from "@root/shared/utils/date";
 import { Schema, SchemaConfig } from "./index";
+import { generateId } from "@root/shared/utils/index";
+import CreateModelDto from "@root/shared/dtos/CreateModel.dto";
 
 interface IModel {
     id: ID;
@@ -13,16 +15,24 @@ const modelSchema: SchemaConfig = {
     id: Schema.idField(true),
     createdAt: Schema.dateField(true),
     updatedAt: Schema.dateField(true),
-    metadata: Schema.objectField(true)
+    metadata: Schema.objectField(true),
 };
 
 class Model<T extends IModel> implements IModel {
     protected readonly data: T;
     protected readonly schema: SchemaConfig;
-    
+
     public constructor(data: T, schema = modelSchema) {
         this.schema = { ...schema, ...modelSchema };
-        this.data = this.parse(data);
+        const parsed = this.parse(data);
+        this.data = new Proxy(parsed, {
+            set: (target, prop, value) => {
+                target[prop as keyof T] = value;
+                this.validate();
+                return true;
+            },
+        });
+
         this.validate();
     }
 
@@ -51,10 +61,29 @@ class Model<T extends IModel> implements IModel {
     protected validate(): void {
         Schema.validate(this.data, this.schema);
     }
-    
+
     public toJson(): T {
         return this.data;
-    } 
+    }
+
+    public toString(): string {
+        return JSON.stringify(this.data);
+    }
+
+    public static fromDto<T extends IModel, U extends Model<T>>(
+        this: new (data: T) => U,
+        dto: CreateModelDto<T>,
+    ): U {
+        const now = new Date();
+        const data = {
+            ...dto,
+            id: dto.id || generateId(),
+            createdAt: dto.createdAt || now,
+            updatedAt: dto.updatedAt || now,
+            metadata: dto.metadata || {},
+        } as T;
+        return new this(data);
+    }
 }
 
 export { Model, IModel, modelSchema };
