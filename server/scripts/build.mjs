@@ -11,7 +11,7 @@ function build() {
         fs.cpSync("src/configs", "build/configs", { recursive: true });
     }
 
-    exec("tsc", (error, stdout, stderr) => {
+    exec("npx tsc", (error, stdout, stderr) => {
         if (error) {
             console.error(`Erro: ${error.message}`);
             return;
