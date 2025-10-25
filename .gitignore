@@ -1,0 +1,41 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+server/build/
+dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Firebase
+server/firebase-debug.log
+server/firebase-debug.*.log
+.firebase/
+
+# Configs (contains sensitive data)
+server/src/configs/service-account.json
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Replit
+.replit
+replit.nix

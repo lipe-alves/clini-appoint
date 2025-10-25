@@ -5,6 +5,7 @@
     "prepare": "npm run build",
     "build": "node scripts/build.mjs",
     "build:watch": "tsc --watch",
+    "dev": "npm run build && node build/server.js",
     "serve": "npm run build && firebase serve --port 5000 --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
