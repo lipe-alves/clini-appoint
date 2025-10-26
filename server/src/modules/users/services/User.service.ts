@@ -6,7 +6,7 @@ import { DuplicatedRegisterError } from "@root/shared/errors/index";
 
 class UserService extends Service<IUser, UserModel, UserRepository> {
     public constructor() {
-        super(new UserRepository());
+        super(new UserRepository(), "clients");
     }
 
     public async getByEmail(email: string): Promise<UserModel | null> {

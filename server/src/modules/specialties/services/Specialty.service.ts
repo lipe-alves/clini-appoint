@@ -14,9 +14,9 @@ class SpecialtyService extends Service<
     SpecialtyModel, 
     SpecialtyRepository
 > {
-    public constructor() {
+    public constructor(database: string) {
         const repository = new SpecialtyRepository();
-        super(repository);
+        super(repository, database);
     }
 
     public async create(data: CreateSpecialtyDto): Promise<SpecialtyModel> {

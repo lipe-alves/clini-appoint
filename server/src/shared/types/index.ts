@@ -1,6 +1,7 @@
 import Controller from "@root/core/Controller";
 import { GENDER_LIST } from "@root/shared/constants/index";
 import * as http from "http";
+import { ITokenPayload } from "@root/modules/auth/types/index";
 
 export type Opaque<T, K> = T & { __opaque__: K };
 
@@ -14,6 +15,7 @@ export interface HttpRequest<
     body: TBody;
     params: TParams;
     query: TQuery;
+    auth?: ITokenPayload;
 }
 
 export interface HttpResponse extends http.ServerResponse {

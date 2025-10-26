@@ -8,10 +8,13 @@ class Service<
     M extends Model<T>, 
     R extends Repository<T, M>  
 > {
+    public readonly database: string;
     public readonly repository: R;
 
-    public constructor(repository: R) {
+    public constructor(repository: R, database: string) {
         this.repository = repository;
+        this.database = database;
+        this.repository.setDatabase(this.database);
     }
 
     public async create(data: CreateModelDto<T>): Promise<M> {

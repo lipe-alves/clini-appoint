@@ -1,22 +1,9 @@
-import * as admin from "firebase-admin";
-import * as fs from "fs";
-import * as path from "path";
 import Model, { IModel } from "./Model";
 import { ID, Int } from "@root/shared/types/index";
 import { generateId } from "@root/shared/utils/index";
 import CreateModelDto from "@root/shared/dtos/CreateModel.dto";
-
-const serviceAccount: admin.ServiceAccount = JSON.parse(
-    fs.readFileSync(path.resolve(__dirname, "../configs/service-account.json"), "utf-8")
-);
-const app = admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-});
-
-const firestore = app.firestore();
-firestore.settings({
-    ignoreUndefinedProperties: true
-});
+import { InternalServerError } from "@root/shared/errors/index";
+import { admin, firestore } from "@root/configs/firebase";
 
 const WHERE_FILTERS = ["<", "<=", "==", "!=", ">=", ">", "array-contains", "in", "not-in", "array-contains-any"] as const;
 const ORDER_BY_DIRECTIONS = ["desc", "asc"] as const;
@@ -25,20 +12,33 @@ type WhereFilter = typeof WHERE_FILTERS[number];
 type OrderByDirection = typeof ORDER_BY_DIRECTIONS[number];
 
 class Repository<T extends IModel, M extends Model<T>> {
-    public readonly dataset: string;
-    public readonly createModel: (data: T) => M;
-    private readonly db: admin.firestore.Firestore;
-    private readonly collection: admin.firestore.CollectionReference;
-    private query: admin.firestore.Query;
-    private pageSize?: Int;
-    private pageNum?: Int;
+    protected readonly dataset: string;
+    protected readonly createModel: (data: T) => M;
+    protected database?: string;
+    private readonly store: admin.firestore.Firestore;
+    private query?: admin.firestore.Query;
+    protected pageSize?: Int;
+    protected pageNum?: Int;
 
     public constructor(dataset: string, createModel: (data: T) => M) {
-        this.db = firestore;
+        this.store = firestore;
         this.dataset = dataset;
-        this.collection = this.db.collection(this.dataset);
-        this.query = this.collection;
+        this.database = undefined;
+        this.query = undefined;
         this.createModel = createModel;
+    }
+
+    private get collection(): admin.firestore.CollectionReference {
+        if (!this.database) {
+            throw new InternalServerError("Database is not defined");
+        }
+        
+        return this.store.collection(`${this.database}/${this.dataset}`);
+    }
+
+    public setDatabase(database: string): this {
+        this.database = database;
+        return this;
     }
 
     public async create(data: CreateModelDto<T>): Promise<M> {
@@ -54,6 +54,7 @@ class Repository<T extends IModel, M extends Model<T>> {
 
         const model = this.createModel(modelParams);
         await this.collection.doc(id).set(model.toJson());
+        this.reset();
 
         return model;
     }
@@ -62,43 +63,66 @@ class Repository<T extends IModel, M extends Model<T>> {
         data.id = id;
         data.updatedAt = new Date();
         await this.collection.doc(id).update(data);
+        this.reset();
     }
 
     public async delete(id: ID): Promise<void> {
         await this.collection.doc(id).delete();
+        this.reset();
     }
 
     public where(field: string, op: WhereFilter, value: any): this {
+        if (!this.query) {
+            this.query = this.collection;
+        }
         this.query = this.query.where(field, op, value);
         return this;
     }
 
     public orderBy(field: string, direction: OrderByDirection = "asc"): this {
+        if (!this.query) {
+            this.query = this.collection;
+        }
         this.query = this.query.orderBy(field, direction);
         return this;
     }
 
     public limit(n: Int): this {
+        if (!this.query) {
+            this.query = this.collection;
+        }
         this.query = this.query.limit(n);
         return this;
     }
 
     public startAfter(field: any): this {
+        if (!this.query) {
+            this.query = this.collection;
+        }
         this.query = this.query.startAfter(field);
         return this;
     }
 
     public startAt(field: any): this {
+        if (!this.query) {
+            this.query = this.collection;
+        }
         this.query = this.query.startAt(field);
         return this;
     }
 
     public endAt(field: any): this {
+        if (!this.query) {
+            this.query = this.collection;
+        }
         this.query = this.query.endAt(field);
         return this;
     }
 
     public endBefore(field: any): this {
+        if (!this.query) {
+            this.query = this.collection;
+        }
         this.query = this.query.endBefore(field);
         return this;
     }
@@ -143,7 +167,9 @@ class Repository<T extends IModel, M extends Model<T>> {
             const model = this.createModel(data);
             return model;
         }
-
+        
+        this.reset();
+        
         return data;
     }
 }
