@@ -15,6 +15,7 @@ interface IUser extends IModel {
     gender?: Gender;
     role: UserRole;
     database: string;
+    refreshToken?: string;
 }
 
 const userSchema: SchemaConfig = {
@@ -26,7 +27,8 @@ const userSchema: SchemaConfig = {
     birthdate: Schema.dateField(false),
     gender: Schema.enumField([...GENDER_LIST], false),
     role: Schema.enumField([...USER_ROLES_LIST], true),
-    database: Schema.stringField(true)
+    database: Schema.stringField(true),
+    refreshToken: Schema.stringField(false)
 };
 
 class UserModel extends Model<IUser> implements IUser {
@@ -110,6 +112,14 @@ class UserModel extends Model<IUser> implements IUser {
 
     public get database() {
         return this.data.database;
+    }
+
+    public get refreshToken() {
+        return this.data.refreshToken;
+    }
+
+    public set refreshToken(refreshToken: string | undefined) {
+        this.data.refreshToken = refreshToken;
     }
 
     public set database(database: string) {

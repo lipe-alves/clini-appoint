@@ -59,6 +59,11 @@ class Service<
     public async getById(id: ID): Promise<M | null> {
         return this.repository.getById(id);
     }
+
+    public async getFirst(): Promise<M | null> {
+        const [first = null] = await this.list();
+        return first;
+    }
 }
 
 

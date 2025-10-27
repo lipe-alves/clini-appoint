@@ -13,11 +13,13 @@ function build() {
 
     exec("npx tsc", (error, stdout, stderr) => {
         if (error) {
-            console.error(`Erro: ${error.message}`);
+            console.error(`Error: ${error.message}`);
+            console.log(stdout);
             return;
         }
         if (stderr) {
             console.error(`Stderr: ${stderr}`);
+            console.log(stdout);
             return;
         }
         
@@ -98,10 +100,6 @@ function resolvePathAliases() {
                 const basePath = path.resolve(baseUrl, dir);
                 resolvedPath = "./" + path.relative(basePath, resolvedPath);
             }
-
-            if (resolvedPath.includes(".json") && /^(import|export)/.test(match)) {
-                match += '  assert { type: "json" }';
-            } 
 
             return match.replace(originalPath, resolvedPath);
         });

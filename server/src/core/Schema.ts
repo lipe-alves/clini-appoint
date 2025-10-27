@@ -1,4 +1,4 @@
-import { InvalidInputFormatError, RequiredFieldError } from "../shared/errors/index";
+import { InvalidInputFormatError, NotAllowedFieldError, RequiredFieldError } from "../shared/errors/index";
 import { validateDate } from "../shared/utils/date";
 import { isId, isNumeric, validateEmail } from "../shared/utils/formats";
 import { removeWhitespaces } from "../shared/utils/string";
@@ -15,7 +15,8 @@ type PropertyType =
     | "cellphone"
     | "numeric"
     | "array"
-    | "boolean";
+    | "boolean"
+    | "not-allowed";
 
 interface PropertyConfigs {
     type: PropertyType;
@@ -84,8 +85,12 @@ class Schema {
         return { type: "float", required };
     }
 
+    public static notAllowedField(): PropertyConfigs {
+        return { type: "not-allowed", required: false };
+    }
+
     public static validate(data: any, schema: SchemaConfig): void {
-        for (const [key, config] of Object.entries(schema)) {  
+        for (const [key, config] of Object.entries(schema)) {
             if (typeof data[key] === "undefined" || data[key] === null) {
                 if (config.required) {
                     throw new RequiredFieldError(key);
@@ -95,6 +100,11 @@ class Schema {
             }
 
             switch (config.type) {
+                case "not-allowed":
+                    if (typeof data[key] === "undefined" || data[key] === null) {
+                        throw new NotAllowedFieldError(key);
+                    }
+                    break;
                 case "array":
                     if (!Array.isArray(data[key])) {
                         throw new InvalidInputFormatError(key, ["array"]);

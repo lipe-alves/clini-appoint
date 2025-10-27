@@ -5,7 +5,7 @@ class UserRepository extends Repository<IUser, UserModel> {
     protected readonly database: string;
     
     public constructor() {
-        super("users", (data) => new UserModel(data));
+        super("users", UserModel);
         this.database = "clients";
     }
 }

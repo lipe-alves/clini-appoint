@@ -1,7 +1,7 @@
 import { Route } from "@root/shared/types/index";
 import { TestsController } from "@root/modules/tests/controllers/index";
 
-const testsRoutes: Route[] = [
+const routes: Route[] = [
     {
         method: "get",
         path: "/tests/ping",
@@ -10,5 +10,5 @@ const testsRoutes: Route[] = [
     }
 ];
 
-export default testsRoutes;
-export { testsRoutes };
+export default routes;
+export { routes };

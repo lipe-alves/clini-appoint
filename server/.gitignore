@@ -1,7 +1,7 @@
 build
 node_modules
 .env
-src/configs
+src/configs/*.json
 
 # Compiled JavaScript files
 lib/**/*.js

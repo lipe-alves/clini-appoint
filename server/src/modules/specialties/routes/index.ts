@@ -1,7 +1,7 @@
 import { Route } from "@root/shared/types/index";
 import { SpecialtiesController } from "@root/modules/specialties/controllers/index";
 
-const testsRoutes: Route[] = [
+const routes: Route[] = [
     {
         method: "get",
         path: "/specialties",
@@ -16,5 +16,5 @@ const testsRoutes: Route[] = [
     }
 ];
 
-export default testsRoutes;
-export { testsRoutes };
+export default routes;
+export { routes };

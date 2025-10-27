@@ -3,7 +3,7 @@ import SpecialtyModel, { ISpecialty } from "@root/modules/specialties/models/Spe
 
 class SpecialtyRepository extends Repository<ISpecialty, SpecialtyModel> {
     public constructor() {
-        super("specialties", (data) => new SpecialtyModel(data));
+        super("specialties", SpecialtyModel);
     }
 
     public async getByName(name: string): Promise<SpecialtyModel | null> {

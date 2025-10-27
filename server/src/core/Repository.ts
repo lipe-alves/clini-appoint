@@ -1,9 +1,10 @@
+import * as admin from "firebase-admin";
 import Model, { IModel } from "./Model";
 import { ID, Int } from "@root/shared/types/index";
 import { generateId } from "@root/shared/utils/index";
 import CreateModelDto from "@root/shared/dtos/CreateModel.dto";
 import { InternalServerError } from "@root/shared/errors/index";
-import { admin, firestore } from "@root/configs/firebase";
+import { firestore } from "@root/configs/firebase";
 
 const WHERE_FILTERS = ["<", "<=", "==", "!=", ">=", ">", "array-contains", "in", "not-in", "array-contains-any"] as const;
 const ORDER_BY_DIRECTIONS = ["desc", "asc"] as const;
@@ -13,19 +14,19 @@ type OrderByDirection = typeof ORDER_BY_DIRECTIONS[number];
 
 class Repository<T extends IModel, M extends Model<T>> {
     protected readonly dataset: string;
-    protected readonly createModel: (data: T) => M;
+    protected readonly Model: new (data: T) => M;
     protected database?: string;
     private readonly store: admin.firestore.Firestore;
     private query?: admin.firestore.Query;
     protected pageSize?: Int;
     protected pageNum?: Int;
 
-    public constructor(dataset: string, createModel: (data: T) => M) {
+    public constructor(dataset: string, Model: new (data: T) => M) {
         this.store = firestore;
         this.dataset = dataset;
         this.database = undefined;
         this.query = undefined;
-        this.createModel = createModel;
+        this.Model = Model;
     }
 
     private get collection(): admin.firestore.CollectionReference {
@@ -52,7 +53,7 @@ class Repository<T extends IModel, M extends Model<T>> {
             metadata: data.metadata || {}
         } as T;
 
-        const model = this.createModel(modelParams);
+        const model = new this.Model(modelParams);
         await this.collection.doc(id).set(model.toJson());
         this.reset();
 
@@ -145,7 +146,7 @@ class Repository<T extends IModel, M extends Model<T>> {
         
         let items = snapshot.docs.map(doc => {
             const data = doc.data() as T;
-            const model = this.createModel(data);
+            const model = new this.Model(data);
             return model;
         });
 
@@ -164,7 +165,7 @@ class Repository<T extends IModel, M extends Model<T>> {
         const data = doc.exists ? (doc.data() as T) : null;
         
         if (data) {
-            const model = this.createModel(data);
+            const model = new this.Model(data);
             return model;
         }
         

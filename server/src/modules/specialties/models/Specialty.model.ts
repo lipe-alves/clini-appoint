@@ -1,9 +1,7 @@
 import { HealthProfessionalType } from "@root/modules/health-professionals/types/index";
 import { HEALTH_PROFESSIONALS_TYPES_LIST } from "@root/modules/health-professionals/constants/index";
-import CreateSpecialtyDto from "@root/modules/specialties/dtos/CreateSpecialty.dto";
 
 import Schema, { SchemaConfig } from "@root/core/Schema";
-import { generateId } from "@root/shared/utils/index";
 import { removeWhitespaces } from "@root/shared/utils/string";
 
 import { Model, IModel } from "@root/core/index";

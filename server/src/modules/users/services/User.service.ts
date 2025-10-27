@@ -6,7 +6,7 @@ import { DuplicatedRegisterError } from "@root/shared/errors/index";
 
 class UserService extends Service<IUser, UserModel, UserRepository> {
     public constructor() {
-        super(new UserRepository(), "clients");
+        super(new UserRepository(), "clients/data");
     }
 
     public async getByEmail(email: string): Promise<UserModel | null> {
@@ -23,12 +23,10 @@ class UserService extends Service<IUser, UserModel, UserRepository> {
         const model = UserModel.fromDto(data);
 
         const userSameEmail = await this.getByEmail(model.email);
-
         if (userSameEmail) throw new DuplicatedRegisterError("User", "email", model.email);
 
         if (model.phone) {
             const userSamePhone = await this.getByPhone(model.phone);
-
             if (userSamePhone) throw new DuplicatedRegisterError("User", "phone", model.phone);
         }
 

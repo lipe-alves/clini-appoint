@@ -6,11 +6,11 @@ type CreateUserDto = CreateModelDto<IUser>;
 
 const createUserDtoSchema: SchemaConfig = { ...userSchema };
 
-function validateCreateSpecialtyDto(data: any): data is CreateUserDto {
+function validateCreateUserDto(data: any): data is CreateUserDto {
     validateCreateModelDto(data);
     Schema.validate(data, createUserDtoSchema);
     return true;
 }
 
-export { CreateUserDto, createUserDtoSchema, validateCreateSpecialtyDto };
+export { CreateUserDto, createUserDtoSchema, validateCreateUserDto };
 export default CreateUserDto;
