@@ -32,13 +32,25 @@ class SpecialtyModel extends Model<ISpecialty> implements ISpecialty {
     public get name() {
         return this.data.name;
     }
+    
+    public set name(name: string) {
+        this.data.name = name;
+    }
 
     public get description() {
         return this.data.description;
     }
 
+    public set description(description: string | undefined) {
+        this.data.description = description;
+    }
+
     public get professionalType() {
         return this.data.professionalType;
+    }
+
+    public set professionalType(professionalType: HealthProfessionalType) {
+        this.data.professionalType = professionalType;
     }
 }
 

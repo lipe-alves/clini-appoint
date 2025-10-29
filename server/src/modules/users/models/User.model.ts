@@ -1,5 +1,5 @@
 import { Model, IModel } from "@root/core/index";
-import { UserRole } from "@root/modules/users/types/index";
+import { SecureUserData, UserRole } from "@root/modules/users/types/index";
 import { USER_ROLES_LIST } from "@root/modules/users/constants/index";
 import { GENDER_LIST } from "@root/shared/constants/index";
 import { Gender } from "@root/shared/types/index";
@@ -113,6 +113,10 @@ class UserModel extends Model<IUser> implements IUser {
     public get database() {
         return this.data.database;
     }
+    
+    public set database(database: string) {
+        this.data.database = database;
+    }
 
     public get refreshToken() {
         return this.data.refreshToken;
@@ -122,8 +126,13 @@ class UserModel extends Model<IUser> implements IUser {
         this.data.refreshToken = refreshToken;
     }
 
-    public set database(database: string) {
-        this.data.database = database;
+    public toSecureData(): SecureUserData {
+        const json = this.toJson();
+        return {
+            ...json,
+            password: undefined,
+            refreshToken: undefined
+        };
     }
 }
 

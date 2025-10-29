@@ -6,13 +6,15 @@ const routes: Route[] = [
         method: "get",
         path: "/specialties",
         Controller: SpecialtiesController,
-        func: "getSpecialties"
+        func: "getSpecialties",
+        protected: true
     },
     {
         method: "post",
         path: "/specialties",
         Controller: SpecialtiesController,
-        func: "createSpecialty"
+        func: "createSpecialty",
+        protected: true
     }
 ];
 

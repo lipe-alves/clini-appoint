@@ -1,9 +1,9 @@
 import { ID } from "@root/shared/types";
-import { IUser } from "@root/modules/users/models/User.model";
+import { SecureUserData } from "@root/modules/users/types";
 
 export interface IAccessTokenPayload {
     userId: ID;
-    user: Omit<IUser, "id" | "password" | "refreshToken">;
+    user: SecureUserData;
     createdAt: Date
 }
 

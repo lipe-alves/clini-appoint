@@ -16,28 +16,28 @@ abstract class Controller {
 
     public abstract execute(func: string): Promise<void>;
 
-    protected async getModels<T extends IModel, M extends Model<T>, R extends Repository<T, M>>(service: Service<T, M, R>): Promise<void> {
+    protected async getModels<T extends IModel, M extends Model<T>, R extends Repository<T, M>>(service: Service<T, M, R>): Promise<T[]> {
         const params = this.request.query;
 
         if (!validateQueryModelsDto(params)) {
-            return;
+            return [];
         }
 
+        service.where("database", "==", this.request.auth!.user.database);
+
         for (const filter of params.filters) {
-            service.repository.where(filter.field, filter.op, filter.value);
+            service.where(filter.field, filter.op, filter.value);
         }
         
         const items = await service
-            .repository
             .page(params.pagination.size, params.pagination.page)
             .orderBy(params.order.field, params.order.direction)
             .list();
 
-        this.success("Consulta realizada com sucesso.", { items });
+        return items.map(item => item.toJson());
     } 
 
-    public success(message: string, data: Object = {})
-    {
+    public success(message: string, data: Object = {}) {
         this.response.status(200).send({
             code: "SUCCESS",
             status: this.response.statusCode,
@@ -46,8 +46,7 @@ abstract class Controller {
         });
     }
 
-    public fail(err: ServerError)
-    {
+    public fail(err: ServerError) {
         this.response.status(err.status).send({
             code: err.code,
             status: err.status,
@@ -60,5 +59,9 @@ abstract class Controller {
     }
 }
 
-export { Controller };
+abstract class Middleware extends Controller {
+    public abstract execute(err?: any): Promise<void>;
+}
+
+export { Controller, Middleware };
 export default Controller;

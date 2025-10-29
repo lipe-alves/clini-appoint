@@ -8,20 +8,22 @@ import { UnauthorizedError } from "@root/modules/auth/errors/index";
 class SpecialtiesController extends Controller {
     public async createSpecialty() {
         const params = this.request.body;
+        params.database = this.request.auth!.user.database;
 
         if (!validateCreateSpecialtyDto(params)) {
             return;
         }
 
-        const service = new SpecialtyService(this.request.auth!.user.database);
+        const service = new SpecialtyService();
         const specialty = await service.create(params);
 
-        this.success("Specialty created successfully.", specialty);
+        this.success("Specialty created successfully.", { specialty: specialty.toJson() });
     }
 
     public async getSpecialties() {
-        const service = new SpecialtyService(this.request.auth!.user.database);
-        await this.getModels<ISpecialty, SpecialtyModel, SpecialtyRepository>(service);
+        const service = new SpecialtyService();
+        const items = await this.getModels<ISpecialty, SpecialtyModel, SpecialtyRepository>(service);
+        this.success("Consulta realizada com sucesso.", { items });
     }
 
     public async execute(func: string) {

@@ -2,6 +2,7 @@ import Controller from "@root/core/Controller";
 
 import AuthService from "@root/modules/auth/services/Auth.service";
 import UserService from "@root/modules/users/services/User.service";
+import DatabaseService from "@root/modules/databases/services/Database.service";
 
 import { validateLoginUserDto } from "@root/modules/auth/dtos/LoginUser.dto";
 import { validateRegisterUserDto } from "@root/modules/auth/dtos/RegisterUser.dto";
@@ -13,7 +14,8 @@ class AuthController extends Controller {
         if (!validateLoginUserDto(params)) return;
 
         const userService = new UserService();
-        const authService = new AuthService(userService);
+        const databaseService = new DatabaseService();
+        const authService = new AuthService(userService, databaseService);
 
         const tokens = await authService.login(params);
         this.response.cookie("refreshToken", tokens.refreshToken, {
@@ -22,7 +24,10 @@ class AuthController extends Controller {
             sameSite: "strict"
         });
         
-        this.success("Logged in successfully.", { accessToken: tokens.accessToken });
+        this.success("Logged in successfully.", { 
+            accessToken: tokens.accessToken,
+            user: tokens.user
+        });
     }
 
     public async logout() {
@@ -33,7 +38,8 @@ class AuthController extends Controller {
         if (!accessToken) throw new ForbiddenError();
 
         const userService = new UserService();
-        const authService = new AuthService(userService);
+        const databaseService = new DatabaseService();
+        const authService = new AuthService(userService, databaseService);
 
         await authService.logout(accessToken);
         this.response.cookie("refreshToken", "", {
@@ -50,7 +56,8 @@ class AuthController extends Controller {
         if (!validateRegisterUserDto(params)) return;
         
         const userService = new UserService();
-        const authService = new AuthService(userService);
+        const databaseService = new DatabaseService();
+        const authService = new AuthService(userService, databaseService);
 
         await authService.register(params);
 
@@ -62,7 +69,8 @@ class AuthController extends Controller {
         if (typeof refreshToken !== "string") throw new ForbiddenError();
 
         const userService = new UserService();
-        const authService = new AuthService(userService);
+        const databaseService = new DatabaseService();
+        const authService = new AuthService(userService, databaseService);
 
         const tokens = await authService.refresh(refreshToken);
         this.response.cookie("refreshToken", tokens.refreshToken, {
@@ -71,7 +79,10 @@ class AuthController extends Controller {
             sameSite: "strict"
         });
         
-        this.success("Session refreshed successfully.", { accessToken: tokens.accessToken });
+        this.success("Session refreshed successfully.", { 
+            accessToken: tokens.accessToken,
+            user: tokens.user
+        });
     }
 
     public async execute(func: string) {

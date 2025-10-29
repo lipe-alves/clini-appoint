@@ -2,24 +2,35 @@ import jwt from "jsonwebtoken";
 import { StringValue } from "ms";
 import bcrypt from "bcryptjs";
 
-import { InternalServerError, RequiredFieldError } from "@root/shared/errors";
-import { WrongEmailOrPassword, ForbiddenError } from "@root/modules/auth/errors";
+import { InternalServerError, RequiredFieldError, ResourceNotFoundError } from "@root/shared/errors";
+import { WrongEmailOrPassword, ForbiddenError, WeakPasswordError } from "@root/modules/auth/errors";
 
 import { UserService } from "@root/modules/users/services/User.service";
 import UserModel from "@root/modules/users/models/User.model";
+import { SecureUserData } from "@root/modules/users/types";
+import DatabaseService from "@root/modules/databases/services/Database.service";
 
 import { IAccessTokenPayload, IRefreshTokenPayload } from "@root/modules/auth/types";
 import RegisterUserDto from "@root/modules/auth/dtos/RegisterUser.dto";
 import LoginUserDto from "@root/modules/auth/dtos/LoginUser.dto";
 
+interface LoginResponse {
+    accessToken: string; 
+    refreshToken: string;
+    user: SecureUserData;
+}
+
+type RefreshResponse = LoginResponse;
+
 class AuthService {
     private readonly userService: UserService;
+    private readonly databaseService: DatabaseService;
     private readonly jwtSecret: string;
     private readonly jwtRefreshSecret: string;
     private readonly tokenExpiry: StringValue;
     private readonly refreshExpiry: StringValue;
 
-    public constructor(userService: UserService) {
+    public constructor(userService: UserService, databaseService: DatabaseService) {
         if (!process.env.JWT_SECRET) {
             throw new InternalServerError("JWT_SECRET is not defined");
         }
@@ -42,6 +53,7 @@ class AuthService {
         this.refreshExpiry = process.env.JWT_REFRESH_EXPIRY as StringValue;
 
         this.userService = userService;
+        this.databaseService = databaseService;
     }
 
     private async hashPassword(password: string): Promise<string> {
@@ -54,11 +66,7 @@ class AuthService {
     }
 
     private async generateAccessToken(user: UserModel): Promise<string> {
-        const userData = { ...user.toJson() } as any;
-
-        delete userData.password;
-        delete userData.id;
-        delete userData.refreshToken;
+        const userData = user.toSecureData();
 
         const payload: IAccessTokenPayload = {
             userId: user.id,
@@ -80,21 +88,51 @@ class AuthService {
         return token;
     }
 
-    public decodeToken<T = IAccessTokenPayload>(token: string): T  {
+    private checkPasswordErrors(password: string): string[] {
+        const errors = [];
+
+        if (password.length < 8) {
+            errors.push("Password must be at least 8 characters long.");
+        }
+        if (!/[A-Z]/.test(password)) {
+            errors.push("Password must contain at least one uppercase letter.");
+        }
+        if (!/[a-z]/.test(password)) {
+            errors.push("Password must contain at least one lowercase letter.");
+        }
+        if (!/[0-9]/.test(password)) {
+            errors.push("Password must contain at least one digit.");
+        }
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            errors.push("Password must contain at least one special character.");
+        }
+
+        return errors;
+    }
+
+    public decodeAccessToken(token: string): IAccessTokenPayload {
         try {
-            return jwt.verify(token, this.jwtSecret) as T;
+            return jwt.verify(token, this.jwtSecret) as IAccessTokenPayload;
         } catch {
             throw new ForbiddenError();
         }
     }
 
-    public async refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+    public decodeRefreshToken(token: string): IRefreshTokenPayload {
+        try {
+            return jwt.verify(token, this.jwtRefreshSecret) as IRefreshTokenPayload;
+        } catch {
+            throw new ForbiddenError();
+        }
+    }
+
+    public async refresh(refreshToken: string): Promise<RefreshResponse> {
         if (!refreshToken) throw new RequiredFieldError("refreshToken");
 
         const user = await this.userService.where("refreshToken", "==", refreshToken).getFirst();
         if (!user) throw new ForbiddenError();
 
-        const decoded = this.decodeToken<IRefreshTokenPayload>(refreshToken);
+        const decoded = this.decodeRefreshToken(refreshToken);
         if (decoded.userId !== user.id) throw new ForbiddenError();
 
         const newAccessToken = await this.generateAccessToken(user);
@@ -102,11 +140,15 @@ class AuthService {
 
         await this.userService.update(user.id, { refreshToken: newRefreshToken });
 
-        return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+        return { 
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken,
+            user: user.toSecureData() 
+        };
     }
   
-    public async login(data: LoginUserDto): Promise<{ accessToken: string; refreshToken: string }> {
-        const user = await this.userService.getByEmail(data.email);
+    public async login(data: LoginUserDto): Promise<LoginResponse> {
+        const user = await this.userService.getByEmail(data.database, data.email);
         if (!user) throw new WrongEmailOrPassword();
     
         const match = await this.comparePasswords(data.password, user.password);
@@ -117,18 +159,28 @@ class AuthService {
 
         await this.userService.update(user.id, { refreshToken });
 
-        return { accessToken, refreshToken };
+        return { 
+            accessToken,
+            refreshToken,
+            user: user.toSecureData() 
+        };
     }
 
     public async logout(accessToken: string): Promise<void> {
         if (!accessToken) throw new RequiredFieldError("accessToken");
         
-        const payload = this.decodeToken<IAccessTokenPayload>(accessToken);
+        const payload = this.decodeAccessToken(accessToken);
         await this.userService.update(payload.userId, { refreshToken: "" });
     }
 
     public async register(data: RegisterUserDto): Promise<UserModel> {
+        const database = await this.databaseService.where("database", "==", data.database).getFirst();
+        if (!database) throw new ResourceNotFoundError("Database", "database", data.database);
+
         const inputPassword = data.password;
+        const pwdErrors = this.checkPasswordErrors(inputPassword);
+        if (pwdErrors.length > 0) throw new WeakPasswordError(pwdErrors);
+
         const hashedPassword = await this.hashPassword(inputPassword);
         data.password = hashedPassword;
         

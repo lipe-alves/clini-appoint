@@ -3,7 +3,6 @@ import Model, { IModel } from "./Model";
 import { ID, Int } from "@root/shared/types/index";
 import { generateId } from "@root/shared/utils/index";
 import CreateModelDto from "@root/shared/dtos/CreateModel.dto";
-import { InternalServerError } from "@root/shared/errors/index";
 import { firestore } from "@root/configs/firebase";
 
 const WHERE_FILTERS = ["<", "<=", "==", "!=", ">=", ">", "array-contains", "in", "not-in", "array-contains-any"] as const;
@@ -13,33 +12,20 @@ type WhereFilter = typeof WHERE_FILTERS[number];
 type OrderByDirection = typeof ORDER_BY_DIRECTIONS[number];
 
 class Repository<T extends IModel, M extends Model<T>> {
-    protected readonly dataset: string;
+    public readonly dataset: string;
+    private readonly database: admin.firestore.Firestore;
+    private readonly collection: admin.firestore.CollectionReference;
+    private query: admin.firestore.Query;
     protected readonly Model: new (data: T) => M;
-    protected database?: string;
-    private readonly store: admin.firestore.Firestore;
-    private query?: admin.firestore.Query;
     protected pageSize?: Int;
     protected pageNum?: Int;
 
     public constructor(dataset: string, Model: new (data: T) => M) {
-        this.store = firestore;
+        this.database = firestore;
         this.dataset = dataset;
-        this.database = undefined;
-        this.query = undefined;
+        this.collection = this.database.collection(this.dataset);
+        this.query = this.collection;
         this.Model = Model;
-    }
-
-    private get collection(): admin.firestore.CollectionReference {
-        if (!this.database) {
-            throw new InternalServerError("Database is not defined");
-        }
-        
-        return this.store.collection(`${this.database}/${this.dataset}`);
-    }
-
-    public setDatabase(database: string): this {
-        this.database = database;
-        return this;
     }
 
     public async create(data: CreateModelDto<T>): Promise<M> {
@@ -73,57 +59,40 @@ class Repository<T extends IModel, M extends Model<T>> {
     }
 
     public where(field: string, op: WhereFilter, value: any): this {
-        if (!this.query) {
-            this.query = this.collection;
-        }
         this.query = this.query.where(field, op, value);
         return this;
     }
 
+    public and(field: string, op: WhereFilter, value: any): this {
+        return this.where(field, op, value);
+    }
+
     public orderBy(field: string, direction: OrderByDirection = "asc"): this {
-        if (!this.query) {
-            this.query = this.collection;
-        }
         this.query = this.query.orderBy(field, direction);
         return this;
     }
 
     public limit(n: Int): this {
-        if (!this.query) {
-            this.query = this.collection;
-        }
         this.query = this.query.limit(n);
         return this;
     }
 
     public startAfter(field: any): this {
-        if (!this.query) {
-            this.query = this.collection;
-        }
         this.query = this.query.startAfter(field);
         return this;
     }
 
     public startAt(field: any): this {
-        if (!this.query) {
-            this.query = this.collection;
-        }
         this.query = this.query.startAt(field);
         return this;
     }
 
     public endAt(field: any): this {
-        if (!this.query) {
-            this.query = this.collection;
-        }
         this.query = this.query.endAt(field);
         return this;
     }
 
     public endBefore(field: any): this {
-        if (!this.query) {
-            this.query = this.collection;
-        }
         this.query = this.query.endBefore(field);
         return this;
     }
@@ -142,8 +111,8 @@ class Repository<T extends IModel, M extends Model<T>> {
     }
 
     public async list(): Promise<M[]> {
-        const snapshot = await this.collection.get();
-        
+        const snapshot = await this.query.get();
+
         let items = snapshot.docs.map(doc => {
             const data = doc.data() as T;
             const model = new this.Model(data);
@@ -163,15 +132,19 @@ class Repository<T extends IModel, M extends Model<T>> {
     public async getById(id: ID): Promise<M | null> {
         const doc = await this.collection.doc(id).get();
         const data = doc.exists ? (doc.data() as T) : null;
+        this.reset();
         
         if (data) {
             const model = new this.Model(data);
             return model;
         }
         
-        this.reset();
-        
         return data;
+    }
+
+    public async getFirst(): Promise<M | null> {
+        const [item = null] = await this.list();
+        return item;
     }
 }
 

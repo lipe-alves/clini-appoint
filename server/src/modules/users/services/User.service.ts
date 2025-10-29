@@ -6,27 +6,33 @@ import { DuplicatedRegisterError } from "@root/shared/errors/index";
 
 class UserService extends Service<IUser, UserModel, UserRepository> {
     public constructor() {
-        super(new UserRepository(), "clients/data");
+        super(new UserRepository());
     }
 
-    public async getByEmail(email: string): Promise<UserModel | null> {
-        const [user = null] = await this.repository.where("email", "==", email).list();
+    public async getByEmail(database: string, email: string): Promise<UserModel | null> {
+        const [user = null] = await this.repository
+            .where("database", "==", database)
+            .and("email", "==", email)
+            .list();
         return user;
     }
 
-    public async getByPhone(phone: string): Promise<UserModel | null> {
-        const [user = null] = await this.repository.where("phone", "==", phone).list();
+    public async getByPhone(database: string, phone: string): Promise<UserModel | null> {
+        const [user = null] = await this.repository
+            .where("database", "==", database)
+            .and("phone", "==", phone)
+            .list();
         return user;
     }
 
     public async create(data: CreateUserDto): Promise<UserModel> {
         const model = UserModel.fromDto(data);
 
-        const userSameEmail = await this.getByEmail(model.email);
+        const userSameEmail = await this.getByEmail(model.database, model.email);
         if (userSameEmail) throw new DuplicatedRegisterError("User", "email", model.email);
 
         if (model.phone) {
-            const userSamePhone = await this.getByPhone(model.phone);
+            const userSamePhone = await this.getByPhone(model.database, model.phone);
             if (userSamePhone) throw new DuplicatedRegisterError("User", "phone", model.phone);
         }
 

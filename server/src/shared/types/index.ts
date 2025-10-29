@@ -1,6 +1,7 @@
-import Controller from "@root/core/Controller";
+import * as http from "node:http";
+
+import { Controller, Middleware } from "@root/core";
 import { GENDER_LIST } from "@root/shared/constants/index";
-import * as http from "http";
 import { IAccessTokenPayload } from "@root/modules/auth/types/index";
 
 export type Opaque<T, K> = T & { __opaque__: K };
@@ -37,9 +38,9 @@ export interface CookieOptions {
 }
 
 export interface HttpRequest<
-    TBody = {}, 
-    TParams = {}, 
-    TQuery = {}, 
+    TBody = { [key: string]: any }, 
+    TParams = { [key: string]: any }, 
+    TQuery = { [key: string]: any }, 
     THeaders extends http.IncomingHttpHeaders = {
         authorization?: string;
     }
@@ -67,6 +68,13 @@ export interface Route<TController extends Controller = Controller> {
     method: HttpMethod;
     Controller: new (req: HttpRequest, res: HttpResponse) => TController;
     func: string;
+    protected?: boolean;
+    middlewares?: (new (req: HttpRequest, res: HttpResponse) => Middleware)[];
+}
+
+export interface RouterConfigs {
+    ErrorMiddleware: new (req: HttpRequest, res: HttpResponse) => Middleware;
+    AuthMiddleware: new (req: HttpRequest, res: HttpResponse) => Middleware;
 }
 
 export type Gender = typeof GENDER_LIST[number];

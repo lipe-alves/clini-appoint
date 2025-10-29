@@ -6,9 +6,10 @@ class SpecialtyRepository extends Repository<ISpecialty, SpecialtyModel> {
         super("specialties", SpecialtyModel);
     }
 
-    public async getByName(name: string): Promise<SpecialtyModel | null> {
+    public async getByName(database: string, name: string): Promise<SpecialtyModel | null> {
         const [specialty = null] = await this
-            .where("name", "==", name)
+            .where("database", "==", database)
+            .and("name", "==", name)
             .list();
         return specialty;
     }

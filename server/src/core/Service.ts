@@ -8,13 +8,10 @@ class Service<
     M extends Model<T>, 
     R extends Repository<T, M>  
 > {
-    public readonly database: string;
     public readonly repository: R;
 
-    public constructor(repository: R, database: string) {
+    public constructor(repository: R) {
         this.repository = repository;
-        this.database = database;
-        this.repository.setDatabase(this.database);
     }
 
     public async create(data: CreateModelDto<T>): Promise<M> {
@@ -61,7 +58,7 @@ class Service<
     }
 
     public async getFirst(): Promise<M | null> {
-        const [first = null] = await this.list();
+        const first = await this.repository.getFirst();
         return first;
     }
 }

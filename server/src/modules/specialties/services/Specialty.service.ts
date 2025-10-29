@@ -14,15 +14,15 @@ class SpecialtyService extends Service<
     SpecialtyModel, 
     SpecialtyRepository
 > {
-    public constructor(database: string) {
+    public constructor() {
         const repository = new SpecialtyRepository();
-        super(repository, database);
+        super(repository);
     }
 
     public async create(data: CreateSpecialtyDto): Promise<SpecialtyModel> {
         const model = SpecialtyModel.fromDto(data);
 
-        const specialtySameName = await this.repository.getByName(model.name);
+        const specialtySameName = await this.repository.getByName(model.database, model.name);
         const duplicated = !!specialtySameName;
         
         if (duplicated) throw new DuplicatedRegisterError("Specialty", "name", model.name);
