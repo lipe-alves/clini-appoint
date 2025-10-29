@@ -1,6 +1,6 @@
-import { ExamType } from "@root/modules/exams/types/index";
+import { FOLLOW_UP_POLICY_APPLIES_TO } from "@root/modules/care-units/constants";
 
-export type FollowUpPolicyAppliesTo = "All" | "SpecificExams" | ExamType;
+export type FollowUpPolicyAppliesTo = typeof FOLLOW_UP_POLICY_APPLIES_TO[number];
 
 export interface FollowUpPolicy {
     enabled: boolean;

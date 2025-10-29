@@ -7,7 +7,7 @@ interface IRoom extends IModel {
     careUnitId: string;
     specialties: string[];
     professionals: string[];
-    operatingHours: {
+    operatingHours?: {
         weekday: string;
         openTime: string;
         closeTime: string;

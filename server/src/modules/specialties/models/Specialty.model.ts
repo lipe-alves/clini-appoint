@@ -10,12 +10,14 @@ interface ISpecialty extends IModel {
     name: string;
     description?: string;
     professionalType: HealthProfessionalType;
+    database: string;
 }
 
 const specialtySchema: SchemaConfig = {
     name: Schema.stringField(true),
     description: Schema.stringField(false),
-    professionalType: Schema.enumField([...HEALTH_PROFESSIONALS_TYPES_LIST], false)
+    professionalType: Schema.enumField([...HEALTH_PROFESSIONALS_TYPES_LIST], false),
+    database: Schema.stringField(true)
 };
 
 class SpecialtyModel extends Model<ISpecialty> implements ISpecialty {
@@ -51,6 +53,14 @@ class SpecialtyModel extends Model<ISpecialty> implements ISpecialty {
 
     public set professionalType(professionalType: HealthProfessionalType) {
         this.data.professionalType = professionalType;
+    }
+
+    public get database() {
+        return this.data.database;
+    }
+
+    public set database(database: string) {
+        this.data.database = database;
     }
 }
 

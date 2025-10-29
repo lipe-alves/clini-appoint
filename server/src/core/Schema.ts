@@ -33,6 +33,20 @@ interface SchemaConfig {
 }
 
 class Schema {
+    public static pick(fields: string[], schema: SchemaConfig, required = true): PropertyConfigs {
+        const result = {
+            type: "object" as const,
+            required,
+            properties: {} as SchemaConfig
+        };
+
+        for (const field of fields) {
+            result.properties[field] = schema[field];
+        }
+
+        return result;
+    }
+
     public static cellphoneField(required = true): PropertyConfigs {
         return { type: "cellphone", required };
     }

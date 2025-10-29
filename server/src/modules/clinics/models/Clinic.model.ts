@@ -10,6 +10,7 @@ interface IClinic extends IModel {
         phone: string;
         email: string;
     };
+    database: string;
 }
 
 class ClinicModel extends Model<IClinic> implements IClinic {
@@ -31,6 +32,14 @@ class ClinicModel extends Model<IClinic> implements IClinic {
 
     public get contacts() {
         return this.data.contacts;
+    }
+
+    public get database() {
+        return this.data.database;
+    }
+
+    public set database(database: string) {
+        this.data.database = database;
     }
 
     protected parse(data: any): IClinic {

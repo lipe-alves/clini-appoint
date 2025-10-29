@@ -1,6 +1,9 @@
-import { Model, IModel } from "@root/core/index";
+import { Model, IModel, Schema, SchemaConfig } from "@root/core/index";
+
 import { Int } from "@root/shared/types/index";
 import { toDate, validateDate } from "@root/shared/utils/date";
+import { InvalidInputFormatError } from "@root/shared/errors/index";
+
 import { 
     AppointmentStatus,
     PaymentMethod,
@@ -12,7 +15,14 @@ import {
     HealthProfessionalSummary,
     ExamSummary 
 } from "@root/modules/appointments/types/index";
-import { InvalidInputFormatError } from "@root/shared/errors/index";
+import { 
+    APPOINTMENT_STATUS_LIST, 
+    PAYMENT_STATUS_LIST, 
+    PAYMENT_TYPE_LIST, 
+    PAYMENT_METHOD_LIST 
+} from "@root/modules/appointments/constants";
+
+import { careUnitSchema } from "@root/modules/care-units/models/CareUnit.model";
 
 interface IAppointment extends IModel {
     name: string;
@@ -48,6 +58,63 @@ interface IAppointment extends IModel {
         };
     };
 }
+
+const appointmentSchema: SchemaConfig = {
+    name: Schema.stringField(true),
+    description: Schema.stringField(false),
+    observation: Schema.stringField(false),
+    status: Schema.enumField([...APPOINTMENT_STATUS_LIST], true),
+    careUnit: Schema.pick([
+        "id", 
+        "clinicId",
+        "name",
+        "description"
+    ], careUnitSchema),
+    room: Schema.objectField(true, {
+        id: Schema.idField(true),
+        careUnitId: Schema.idField(true),
+        name: Schema.stringField(true),
+        number: Schema.stringField(false)
+    }),
+    patient: Schema.objectField(true, {
+        id: Schema.stringField(true),
+        fullName: Schema.stringField(true),
+        document: Schema.stringField(true)
+    }),
+    healthProfessional: Schema.objectField(true, {
+        id: Schema.stringField(true),
+        fullName: Schema.stringField(true),
+        specialty: Schema.stringField(false)
+    }),
+    exam: Schema.objectField(true, {
+        id: Schema.stringField(true),
+        name: Schema.stringField(true),
+        code: Schema.stringField(false)
+    }),
+    start: Schema.dateField(true),
+    end: Schema.dateField(true),
+    payment: Schema.objectField(true, {
+        status: Schema.enumField([...PAYMENT_STATUS_LIST], true),
+        type: Schema.enumField([...PAYMENT_TYPE_LIST], true),
+        amount: Schema.intField(true),
+        private: Schema.objectField(false, {
+            method: Schema.enumField([...PAYMENT_METHOD_LIST], true),
+            currency: Schema.stringField(true),
+            transactionId: Schema.stringField(false)
+        }),
+        insurance: Schema.objectField(false, {
+            providerName: Schema.stringField(true),
+            cardNumber: Schema.stringField(true),
+            expirationDate: Schema.dateField(false),
+            authorizationCode: Schema.stringField(false),
+            coverage: Schema.arrayField(false, Schema.objectField(true, {
+                examId: Schema.stringField(true),
+                covered: Schema.booleanField(true),
+                notes: Schema.stringField(false)
+            }))
+        })
+    })
+};
 
 class AppointmentModel extends Model<IAppointment> implements IAppointment {
     public get name() {
@@ -118,5 +185,5 @@ class AppointmentModel extends Model<IAppointment> implements IAppointment {
     }
 }
 
-export { AppointmentModel, IAppointment };
+export { AppointmentModel, IAppointment, appointmentSchema };
 export default AppointmentModel;

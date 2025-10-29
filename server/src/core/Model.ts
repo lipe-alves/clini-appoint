@@ -6,7 +6,6 @@ import CreateModelDto from "@root/shared/dtos/CreateModel.dto";
 
 interface IModel {
     id: ID;
-    database: string;
     createdAt: Date;
     updatedAt: Date;
     metadata: Record<string, any>;
@@ -14,7 +13,6 @@ interface IModel {
 
 const modelSchema: SchemaConfig = {
     id: Schema.idField(true),
-    database: Schema.stringField(true),
     createdAt: Schema.dateField(true),
     updatedAt: Schema.dateField(true),
     metadata: Schema.objectField(true),
@@ -44,14 +42,6 @@ class Model<T extends IModel> implements IModel {
 
     public set id(id: ID) {
         this.data.id = id;
-    }
-
-    public get database() {
-        return this.data.database;
-    }
-
-    public set database(database: string) {
-        this.data.database = database;
     }
 
     public get createdAt() {
