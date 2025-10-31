@@ -1,6 +1,6 @@
 import { Model, IModel, Schema, SchemaConfig } from "@root/core/index";
 import { FollowUpPolicy } from "@root/modules/care-units/types/index";
-import { FOLLOW_UP_POLICY_APPLIES_TO } from "@root/modules/care-units/constants";
+import followUpPolicySchema from "@root/modules/care-units/schemas/followUpPolicy.schema";
 
 interface ICareUnit extends IModel {
     name: string;
@@ -13,11 +13,6 @@ interface ICareUnit extends IModel {
         postalCode: string;
         country: string;
     };
-    operatingHours?: {
-        weekday: string;
-        openTime: string;
-        closeTime: string;
-    }[];
     followUpPolicy: FollowUpPolicy;
 }
 
@@ -32,18 +27,7 @@ const careUnitSchema: SchemaConfig = {
         postalCode: Schema.stringField(true),
         country: Schema.stringField(true)
     }),
-    operatingHours: Schema.arrayField(false, Schema.objectField(true, {
-        weekday: Schema.stringField(true),
-        openTime: Schema.stringField(true),
-        closeTime: Schema.stringField(true)
-    })),
-    followUpPolicy: Schema.objectField(true, {
-        enabled: Schema.booleanField(true),
-        delayDays: Schema.intField(true),
-        isFree: Schema.booleanField(true),
-        appliesTo: Schema.enumField([...FOLLOW_UP_POLICY_APPLIES_TO], true),
-        exams: Schema.arrayField(false, Schema.stringField(true))
-    }),
+    followUpPolicy: { ...followUpPolicySchema },
 };
 
 class CareUnitModel extends Model<ICareUnit> implements ICareUnit {
@@ -65,10 +49,6 @@ class CareUnitModel extends Model<ICareUnit> implements ICareUnit {
 
     public get followUpPolicy() {
         return this.data.followUpPolicy;
-    }
-
-    public validate(): boolean {
-        return true;
     }
 }
 
