@@ -1,8 +1,14 @@
 import { Model, IModel } from "@root/core/index";
-import { ExamType, DurationType, FollowUpPolicy } from "@root/modules/exams/types/index";
+import { 
+    ExamType, 
+    DurationType, 
+    FollowUpPolicy, 
+    ResultsTime 
+} from "@root/modules/exams/types/index";
 import { 
     EXAM_TYPES_LIST,
-    DURATION_TYPES_LIST
+    DURATION_TYPES_LIST,
+    RESULTS_TIME_TYPES_LIST
 } from "@root/modules/exams/constants/index";
 import { GENDER_LIST } from "@root/shared/constants/index";
 import { Gender, Int } from "@root/shared/types/index";
@@ -13,12 +19,12 @@ interface IExam extends IModel {
     type: ExamType;
     customType?: string;
     description?: string;
-    duration?: {
+    duration: {
         type: DurationType;
         value: number;
     };
-    resultsTime?: {
-        type: DurationType;
+    resultsTime: {
+        type: ResultsTime;
         value: number;
     };
     preparation: {
@@ -28,7 +34,7 @@ interface IExam extends IModel {
     followUpPolicy: FollowUpPolicy;
     minAge?: number;
     maxAge?: number;
-    genderRestriction?: Gender;
+    genders?: Gender[];
     specialties?: string[];
     amount: Int;
 }
@@ -38,12 +44,12 @@ const examSchema: SchemaConfig = {
     type: Schema.enumField([...EXAM_TYPES_LIST], true),
     customType: Schema.stringField(false),
     description: Schema.stringField(false),
-    duration: Schema.objectField(false, {
+    duration: Schema.objectField(true, {
         type: Schema.enumField([...DURATION_TYPES_LIST], true),
         value: Schema.intField(true),
     }),
-    resultsTime: Schema.objectField(false, {
-        type: Schema.enumField([...DURATION_TYPES_LIST], true),
+    resultsTime: Schema.objectField(true, {
+        type: Schema.enumField([...RESULTS_TIME_TYPES_LIST], true),
         value: Schema.intField(true),
     }),
     preparation: Schema.objectField(true, {
@@ -57,7 +63,7 @@ const examSchema: SchemaConfig = {
     }),
     minAge: Schema.intField(false),
     maxAge: Schema.intField(false),
-    genderRestriction: Schema.enumField([...GENDER_LIST], false),
+    genders: Schema.arrayField(false, Schema.enumField([...GENDER_LIST], true)),
     specialties: Schema.arrayField(false, Schema.stringField(true)),
     amount: Schema.intField(true),
 };
@@ -83,6 +89,10 @@ class ExamModel extends Model<IExam> implements IExam {
         return this.data.description;
     }
 
+    public get duration() {
+        return this.data.duration;
+    }
+
     public get resultsTime() {
         return this.data.resultsTime;
     }
@@ -103,8 +113,8 @@ class ExamModel extends Model<IExam> implements IExam {
         return this.data.maxAge;
     }
 
-    public get genderRestriction() {
-        return this.data.genderRestriction;
+    public get genders() {
+        return this.data.genders;
     }
 
     public get specialties() {
@@ -116,5 +126,5 @@ class ExamModel extends Model<IExam> implements IExam {
     }
 }
 
-export { ExamModel, IExam };
+export { ExamModel, IExam, examSchema };
 export default ExamModel;
