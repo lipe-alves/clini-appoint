@@ -24,14 +24,9 @@ class Model<T extends IModel> implements IModel {
 
     public constructor(data: T, schema = modelSchema) {
         this.schema = { ...schema, ...modelSchema };
+        
         const parsed = this.parse(data);
-        this.data = new Proxy(parsed, {
-            set: (target, prop, value) => {
-                target[prop as keyof T] = value;
-                this.validate();
-                return true;
-            },
-        });
+        this.data = this.createProxy(parsed);
 
         this.validate();
     }
@@ -66,6 +61,23 @@ class Model<T extends IModel> implements IModel {
 
     public set metadata(metadata: Record<string, any>) {
         this.data.metadata = metadata;
+    }
+
+    private createProxy(data: any) {
+        return new Proxy(data, {
+            get: (target, prop) => {
+                if (typeof target[prop] === "object" && target[prop] !== null && !Array.isArray(target[prop])) {
+                    return this.createProxy(target[prop]);
+                }
+
+                return target[prop];
+            },
+            set: (target, prop, value) => {
+                target[prop as keyof T] = value;
+                this.validate();
+                return true;
+            },
+        });
     }
 
     protected parse(data: any): T {
