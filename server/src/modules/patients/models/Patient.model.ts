@@ -177,10 +177,19 @@ class PatientModel extends Model<IPatient> implements IPatient {
         return this.medicalInfo.bloodType === "AB+";
     }
 
+    public get age() {
+        if (!this.birthdate) return undefined;
+
+        const currYear = new Date().getFullYear();
+        const birthYear = this.birthdate.getFullYear();
+
+        return currYear - birthYear;
+    }
+
     public get additionalConsiderations() {
         return this.data.additionalConsiderations;
     }
 }
 
-export { PatientModel, IPatient };
+export { PatientModel, IPatient, patientSchema };
 export default PatientModel;
