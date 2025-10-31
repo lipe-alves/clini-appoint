@@ -35,7 +35,7 @@ interface IExam extends IModel {
     minAge?: number;
     maxAge?: number;
     genders?: Gender[];
-    specialties?: string[];
+    specialties: string[];
     amount: Int;
 }
 
@@ -64,7 +64,7 @@ const examSchema: SchemaConfig = {
     minAge: Schema.intField(false),
     maxAge: Schema.intField(false),
     genders: Schema.arrayField(false, Schema.enumField([...GENDER_LIST], true)),
-    specialties: Schema.arrayField(false, Schema.stringField(true)),
+    specialties: Schema.arrayField(true, Schema.stringField(true)),
     amount: Schema.intField(true),
 };
 

@@ -54,3 +54,25 @@ export function validateDate(date: any): date is Date {
     date = toDate(date);
     return date instanceof Date && !isNaN(date.getTime());
 }
+
+export function sumTime(
+    date: Date, 
+    amount: number, 
+    time: "year" | "month" | "days" | "hours" | "minutes" | "seconds"
+): Date {
+    const newDate = new Date(date.getTime());
+
+    if (time === "seconds") {
+        newDate.setSeconds(newDate.getSeconds() + amount);
+    } else if (time === "minutes") {
+        newDate.setMinutes(newDate.getMinutes() + amount);
+    } else if (time === "hours") {
+        newDate.setHours(newDate.getHours() + amount);
+    } else if (time === "days") {
+        newDate.setDate(newDate.getDate() + amount);
+    } else if (time === "year") {
+        newDate.setFullYear(newDate.getFullYear() + amount);
+    }
+
+    return newDate;
+}

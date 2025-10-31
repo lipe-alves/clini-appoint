@@ -26,6 +26,7 @@ interface PropertyConfigs {
     properties?: SchemaConfig;
     itemsType?: PropertyConfigs;
     possibleStrings?: string[];
+    format?: RegExp;
 }
 
 interface SchemaConfig {
@@ -55,8 +56,8 @@ class Schema {
         return { type: "email", required };
     }
 
-    public static stringField(required = true): PropertyConfigs {
-        return { type: "string", required };
+    public static stringField(required = true, format?: RegExp): PropertyConfigs {
+        return { type: "string", required, format };
     }
 
     public static enumField(possibleStrings: string[], required = true): PropertyConfigs {
@@ -170,6 +171,11 @@ class Schema {
                     if (config.possibleStrings) {
                         if (!config.possibleStrings.includes(data[key])) {
                             throw new InvalidInputFormatError(key, [...config.possibleStrings]);
+                        }
+                    }
+                    if (config.format) {
+                        if (!config.format.test(data[key])) {
+                            throw new InvalidInputFormatError(key, [config.format.toString()]);
                         }
                     }
                     break;
