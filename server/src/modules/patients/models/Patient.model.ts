@@ -1,6 +1,16 @@
+import Schema, { SchemaConfig } from "@root/core/Schema";
 import { Model, IModel } from "@root/core/index";
+
+import { toDate } from "@root/shared/utils/date";
+import { removeWhitespaces } from "@root/shared/utils/string";
+
+import { 
+    PersonIDDocument, 
+    MaritalStatus, 
+    Relationship, 
+    BloodType 
+} from "@root/modules/patients/types/index";
 import { Gender } from "@root/shared/types/index";
-import { PersonIDDocument, MaritalStatus, Relationship, BloodType } from "@root/modules/patients/types/index";
 
 import { GENDER_LIST } from "@root/shared/constants/index";
 import { 
@@ -10,8 +20,6 @@ import {
     RELATIONSHIP_TYPES_LIST 
 } from "@root/modules/patients/constants/index";
 
-import { toDate } from "@root/shared/utils/date";
-import Schema, { SchemaConfig } from "@root/core/Schema";
 
 interface IPatient extends IModel {
     firstName: string;
@@ -143,6 +151,10 @@ class PatientModel extends Model<IPatient> implements IPatient {
 
     public get lastName() {
         return this.data.lastName;
+    }
+    
+    public get fullName() {
+        return removeWhitespaces(`${this.firstName} ${this.lastName}`);
     }
 
     public get document() {

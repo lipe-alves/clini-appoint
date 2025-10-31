@@ -5,9 +5,13 @@ import Schema, { SchemaConfig } from "@root/core/Schema";
 import { Gender } from "@root/shared/types/index";
 import { GENDER_LIST } from "@root/shared/constants/index";
 
-import { toDate } from "@root/shared/utils/index";
+import { toDate } from "@root/shared/utils/date";
+import { removeWhitespaces } from "@root/shared/utils/string";
 
-import { HealthProfessionalType, HealthProfessionalRegistrationType } from "@root/modules/health-professionals/types/index";
+import { 
+    HealthProfessionalType, 
+    HealthProfessionalRegistrationType 
+} from "@root/modules/health-professionals/types/index";
 import { 
     HEALTH_PROFESSIONALS_TYPES_LIST, 
     HEALTH_PROFESSIONAL_REGISTRATION_TYPES_LIST 
@@ -108,6 +112,10 @@ class HealthProfessionalModel<T extends IHealthProfessional = IHealthProfessiona
 
     public get lastName() {
         return this.data.lastName;
+    }
+
+    public get fullName() {
+        return removeWhitespaces(`${this.firstName} ${this.lastName}`);
     }
 
     public get birthdate() {
