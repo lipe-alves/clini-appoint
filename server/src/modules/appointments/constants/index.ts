@@ -1,4 +1,11 @@
-// Appointment Status
+export const APPOINTMENT_TYPES = {
+    CONSULTATION: "Consultation",
+    EXAM_SESSION: "ExamSession",
+    FOLLOW_UP: "FollowUp",
+} as const;
+
+export const APPOINTMENT_TYPES_LIST = Object.values(APPOINTMENT_TYPES);
+
 export const APPOINTMENT_STATUS_TYPES = {
     SCHEDULED: "Scheduled" as const,
     CANCELLED: "Cancelled" as const,
@@ -13,7 +20,6 @@ export const APPOINTMENT_STATUS_TYPES = {
 
 export const APPOINTMENT_STATUS_LIST = Object.values(APPOINTMENT_STATUS_TYPES);
 
-// Payment Type
 export const PAYMENT_TYPE_TYPES = {
     INSURANCE: "Insurance" as const,
     PRIVATE: "Private" as const,
@@ -23,7 +29,6 @@ export const PAYMENT_TYPE_TYPES = {
 
 export const PAYMENT_TYPE_LIST = Object.values(PAYMENT_TYPE_TYPES);
 
-// Payment Method
 export const PAYMENT_METHOD_TYPES = {
     CREDIT_CARD: "CreditCard" as const,
     DEBIT_CARD: "DebitCard" as const,
@@ -39,7 +44,6 @@ export const PAYMENT_METHOD_TYPES = {
 
 export const PAYMENT_METHOD_LIST = Object.values(PAYMENT_METHOD_TYPES);
 
-// Payment Status
 export const PAYMENT_STATUS_TYPES = {
     PENDING: "Pending" as const,
     PAID: "Paid" as const,
@@ -49,3 +53,50 @@ export const PAYMENT_STATUS_TYPES = {
 };
 
 export const PAYMENT_STATUS_LIST = Object.values(PAYMENT_STATUS_TYPES);
+
+export const CARE_UNIT_SUMMARY_FIELDS = [
+    "id",
+    "clinicId",
+    "name",
+    "description"
+] as const;
+
+export const ROOM_SUMMARY_FIELDS = [
+    "id",
+    "careUnitId",
+    "name",
+    "description",
+    "followUpPolicy",
+    "operatingHours"
+] as const;
+
+export const PATIENT_SUMMARY_FIELDS = [ 
+    "id",
+    "firstName",
+    "lastName",
+    "document",
+] as const;
+
+export const HEALTH_PROFESSIONAL_SUMMARY_FIELDS = [ 
+    "id",
+    "type",
+    "customType",
+    "firstName",
+    "lastName",
+    "registration",
+] as const;
+
+export const EXAM_SUMMARY_FIELDS = [ 
+    "id",
+    "name",
+    "followUpPolicy",
+    "duration",
+    "resultsTime",
+    "description",
+    "preparation",
+] as const;
+
+export const PRIORITY_LEVELS = [
+    "Routine",
+    "Urgent"
+] as const;

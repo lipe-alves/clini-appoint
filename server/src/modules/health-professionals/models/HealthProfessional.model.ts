@@ -151,5 +151,5 @@ class HealthProfessionalModel<T extends IHealthProfessional = IHealthProfessiona
     }
 }
 
-export { HealthProfessionalModel, IHealthProfessional };
+export { HealthProfessionalModel, IHealthProfessional, healthProfessionalSchema };
 export default HealthProfessionalModel;
