@@ -1,5 +1,6 @@
 import { Model, IModel, Schema, SchemaConfig } from "@root/core/index";
-import { FollowUpPolicy } from "@root/modules/care-units/types/index";
+import { WEEKDAYS_LIST } from "@root/modules/care-units/constants";
+import { FollowUpPolicy, Weekday } from "@root/modules/care-units/types/index";
 import followUpPolicySchema from "@root/modules/care-units/schemas/followUpPolicy.schema";
 
 interface IRoom extends IModel {
@@ -9,7 +10,7 @@ interface IRoom extends IModel {
     specialties: string[];
     professionals: string[];
     operatingHours?: {
-        weekday: string;
+        weekday: Weekday;
         openTime: string;
         closeTime: string;
     }[];
@@ -24,7 +25,7 @@ const roomSchema: SchemaConfig = {
     specialties: Schema.arrayField(true, Schema.idField(true)),
     professionals: Schema.arrayField(true, Schema.idField(true)),
     operatingHours: Schema.arrayField(false, Schema.objectField(true, {
-        weekday: Schema.stringField(true),
+        weekday: Schema.enumField([...WEEKDAYS_LIST], true),
         openTime: Schema.stringField(true),
         closeTime: Schema.stringField(true)
     })),

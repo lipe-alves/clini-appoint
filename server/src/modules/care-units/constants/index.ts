@@ -12,3 +12,25 @@ export const ATTENDANCE_MODE_TYPES = {
 } as const;
 
 export const ATTENDANCE_MODE_LIST = Object.values(ATTENDANCE_MODE_TYPES);
+
+export const WEEKDAYS = {
+    MONDAY: "Monday",
+    TUESDAY: "Tuesday",
+    WEDNESDAY: "Wednesday",
+    THURSDAY: "Thursday",
+    FRIDAY: "Friday",
+    SATURDAY: "Saturday",
+    SUNDAY: "Sunday",
+} as const;
+
+export const WEEKDAYS_LIST = Object.values(WEEKDAYS);
+
+export const WEEKDAYS_INDEXS = {
+    [WEEKDAYS.SUNDAY]: 0,
+    [WEEKDAYS.MONDAY]: 1,
+    [WEEKDAYS.TUESDAY]: 2,
+    [WEEKDAYS.WEDNESDAY]: 3,
+    [WEEKDAYS.THURSDAY]: 4,
+    [WEEKDAYS.FRIDAY]: 5,
+    [WEEKDAYS.SATURDAY]: 6,
+} as const;
